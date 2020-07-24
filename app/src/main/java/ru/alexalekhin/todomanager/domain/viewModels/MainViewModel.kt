@@ -5,14 +5,14 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
-import ru.alexalekhin.todomanager.domain.models.ProjectsRepository
 import ru.alexalekhin.todomanager.data.project.DBProject
+import ru.alexalekhin.todomanager.domain.models.ProjectsRepository
 import ru.alexalekhin.todomanager.domain.viewModels.entities.DataLoadingState
 import javax.inject.Inject
 
 class MainViewModel @Inject constructor(private val projectsRepository: ProjectsRepository) : ViewModel() {
 
-    val projectLiveData: MutableLiveData<List<DBProject>> = MutableLiveData(emptyList())
+    val projectLiveData: MutableLiveData<List<DBProject>> = MutableLiveData()
     val dataLoadingState: MutableLiveData<DataLoadingState> = MutableLiveData()
 
     private var currentBiggestProjectId = 0
@@ -67,11 +67,15 @@ class MainViewModel @Inject constructor(private val projectsRepository: Projects
     }
 
     fun loadProjectsData() {
-        dataLoadingState.postValue(DataLoadingState.LOADING)
         viewModelScope.launch {
-            projectLiveData.postValue(projectsRepository.loadProjects().sortedByDescending { it.weight })
-            currentBiggestProjectWeight = projectsRepository.getLargestProjectWeight() ?: 0
-            currentBiggestProjectId = projectsRepository.getLargestProjectId() ?: 0
+            if (projectLiveData.value == null) {
+                dataLoadingState.postValue(DataLoadingState.LOADING)
+                val newData = projectsRepository.loadProjects().sortedByDescending { it.weight }
+
+                projectLiveData.postValue(newData)
+                currentBiggestProjectWeight = projectsRepository.getLargestProjectWeight() ?: 0
+                currentBiggestProjectId = projectsRepository.getLargestProjectId() ?: 0
+            }
             dataLoadingState.postValue(DataLoadingState.LOADED)
         }
     }

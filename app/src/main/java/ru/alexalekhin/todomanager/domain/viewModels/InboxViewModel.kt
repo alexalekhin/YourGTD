@@ -12,7 +12,7 @@ import javax.inject.Inject
 
 class InboxViewModel @Inject constructor(private val tasksRepository: InboxTasksRepository) : ViewModel() {
 
-    val tasksLiveData: MutableLiveData<List<DBTask>> = MutableLiveData(emptyList())
+    val tasksLiveData: MutableLiveData<List<DBTask>> = MutableLiveData()
     val dataLoadingState: MutableLiveData<DataLoadingState> = MutableLiveData()
 
     private var currentBiggestWeight = 0
@@ -21,12 +21,15 @@ class InboxViewModel @Inject constructor(private val tasksRepository: InboxTasks
     fun loadTasksData() {
         viewModelScope.launch {
             //TODO: filter in adapter
-            tasksLiveData.postValue(tasksRepository.loadTasks().sortedByDescending { it.weight }.filter { !it.checked })
-            currentBiggestWeight = tasksRepository.getLargestWeight() ?: 0
-            currentBiggestId = tasksRepository.getLargestId() ?: 0
+            if (tasksLiveData.value == null) {
+                dataLoadingState.postValue(DataLoadingState.LOADING)
+                val newTaskList = tasksRepository.loadTasks().sortedByDescending { it.weight }.filter { !it.checked }
+                tasksLiveData.postValue(newTaskList)
+                currentBiggestWeight = tasksRepository.getLargestWeight() ?: 0
+                currentBiggestId = tasksRepository.getLargestId() ?: 0
+            }
             dataLoadingState.postValue(DataLoadingState.LOADED)
         }
-        dataLoadingState.postValue(DataLoadingState.LOADING)
     }
 
     fun updateTasks(tasks: List<DBTask>) {
