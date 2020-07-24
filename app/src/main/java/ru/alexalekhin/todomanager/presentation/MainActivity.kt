@@ -12,10 +12,10 @@ import ru.alexalekhin.todomanager.R
 import ru.alexalekhin.todomanager.presentation.fragments.InboxFragment
 import ru.alexalekhin.todomanager.presentation.fragments.MainFlowFragment
 import ru.alexalekhin.todomanager.presentation.fragments.MainFragment
-import ru.alexalekhin.todomanager.presentation.fragments.dialogFragments.ProjectCreationDialogFragment
-import ru.alexalekhin.todomanager.presentation.fragments.dialogFragments.ProjectOrDomainSelectionFragment
+import ru.alexalekhin.todomanager.presentation.fragments.dialogs.ProjectCreationDialogFragment
+import ru.alexalekhin.todomanager.presentation.fragments.dialogs.ProjectOrDomainSelectionFragment
 import ru.alexalekhin.todomanager.presentation.fragments.ProjectFragment
-import ru.alexalekhin.todomanager.presentation.fragments.dialogFragments.TaskCreationDialogFragment
+import ru.alexalekhin.todomanager.presentation.fragments.dialogs.TaskCreationDialogFragment
 import ru.alexalekhin.todomanager.presentation.misc.OnFragmentInteractionListener
 import java.lang.IllegalArgumentException
 
@@ -38,13 +38,6 @@ class MainActivity : AppCompatActivity(),
                 .setTransition(TRANSIT_NONE)
                 .commit()
         }
-    }
-
-    override fun onWindowFocusChanged(hasFocus: Boolean) {
-        super.onWindowFocusChanged(hasFocus)
-        if (hasFocus) window.decorView.systemUiVisibility =
-            (View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-                    /* or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION*/)
     }
 
     override fun showAddTaskDialog(projectId: Int?, folderId: Int?) {

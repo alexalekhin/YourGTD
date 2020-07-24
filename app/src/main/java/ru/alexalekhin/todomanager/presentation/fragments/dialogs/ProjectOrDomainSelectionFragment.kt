@@ -1,4 +1,4 @@
-package ru.alexalekhin.todomanager.presentation.fragments.dialogFragments
+package ru.alexalekhin.todomanager.presentation.fragments.dialogs
 
 import android.content.Context
 import android.os.Bundle
