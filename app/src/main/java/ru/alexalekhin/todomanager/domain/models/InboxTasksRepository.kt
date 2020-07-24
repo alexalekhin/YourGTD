@@ -4,7 +4,7 @@ import ru.alexalekhin.todomanager.data.TODODatabase
 import ru.alexalekhin.todomanager.data.task.DBTask
 import javax.inject.Inject
 
-class InboxModel @Inject constructor(private val database: TODODatabase) {
+class InboxTasksRepository @Inject constructor(private val database: TODODatabase) {
 
     suspend fun loadTasks(): List<DBTask> {
         return database.taskDao().getByFolderId(ID_FOLDER_INBOX)

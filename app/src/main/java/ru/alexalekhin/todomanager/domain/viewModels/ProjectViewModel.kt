@@ -5,14 +5,13 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
-import ru.alexalekhin.todomanager.domain.models.ProjectModel
-
 import ru.alexalekhin.todomanager.data.project.DBProject
 import ru.alexalekhin.todomanager.data.task.DBTask
-
+import ru.alexalekhin.todomanager.domain.models.ProjectDataRepository
+import ru.alexalekhin.todomanager.domain.viewModels.entities.DataLoadingState
 import javax.inject.Inject
 
-class ProjectViewModel @Inject constructor(private val model: ProjectModel) :
+class ProjectViewModel @Inject constructor(private val projectDataRepository: ProjectDataRepository) :
     ViewModel() {
 
     val tasksLiveData: MutableLiveData<List<DBTask>> = MutableLiveData(emptyList())
@@ -23,7 +22,7 @@ class ProjectViewModel @Inject constructor(private val model: ProjectModel) :
     private var currentBiggestTaskId: Int = 0
 
     fun loadProjectData(projectId: Int) {
-        viewModelScope.launch { projectLiveData.postValue(model.loadProjectData(projectId)) }
+        viewModelScope.launch { projectLiveData.postValue(projectDataRepository.loadProjectData(projectId)) }
     }
 
     fun updateProjectData(projectData: Bundle) {
@@ -37,7 +36,7 @@ class ProjectViewModel @Inject constructor(private val model: ProjectModel) :
                 projectData.getInt("folderId"),
                 projectLiveData.value!!.weight
             )
-            model.updateProjectData(project)
+            projectDataRepository.updateProjectData(project)
             projectLiveData.postValue(project)
         }
     }
@@ -46,10 +45,10 @@ class ProjectViewModel @Inject constructor(private val model: ProjectModel) :
         dataLoadingState.postValue(DataLoadingState.LOADING)
         viewModelScope.launch {
             //TODO: filter in adapter
-            currentBiggestTaskWeight = model.getLargestWeight() ?: 0
-            currentBiggestTaskId = model.getLargestTaskId() ?: 0
+            currentBiggestTaskWeight = projectDataRepository.getLargestWeight() ?: 0
+            currentBiggestTaskId = projectDataRepository.getLargestTaskId() ?: 0
             tasksLiveData.postValue(
-                model.loadTasksOfProject(projectId)
+                projectDataRepository.loadTasksOfProject(projectId)
                     .sortedByDescending { it.weight }
                     .filter { !it.checked }
             )
@@ -58,15 +57,15 @@ class ProjectViewModel @Inject constructor(private val model: ProjectModel) :
     }
 
     fun updateTasksOfProject(tasks: List<DBTask>, projectId: Int) {
-        viewModelScope.launch { model.updateTasksOfProject(tasks, projectId) }
+        viewModelScope.launch { projectDataRepository.updateTasksOfProject(tasks, projectId) }
     }
 
     fun markTaskAsDone(task: DBTask, projectId: Int?) {
-        viewModelScope.launch { model.markTaskAsDone(task, projectId) }
+        viewModelScope.launch { projectDataRepository.markTaskAsDone(task, projectId) }
     }
 
     fun addCreatedTaskToProject(task: DBTask, projectId: Int?) {
-        viewModelScope.launch { model.addTaskToProject(task.copy(), projectId) }
+        viewModelScope.launch { projectDataRepository.addTaskToProject(task.copy(), projectId) }
     }
 
     fun createTaskInProject(taskData: Bundle, projectId: Int?): DBTask {
@@ -92,24 +91,18 @@ class ProjectViewModel @Inject constructor(private val model: ProjectModel) :
                 if (taskData.getInt("folderId") == ID_FOLDER_NULL) null else taskData.getInt("folderId"),
                 ++currentBiggestTaskWeight
             )
-            model.addTaskToProject(task, projectId)
+            projectDataRepository.addTaskToProject(task, projectId)
         }
     }
 
     fun deleteTaskFromProject(task: DBTask, projectId: Int) {
-        viewModelScope.launch { model.deleteTaskFromProject(task, projectId) }
+        viewModelScope.launch { projectDataRepository.deleteTaskFromProject(task, projectId) }
     }
 
     companion object {
+
         const val ID_PROJECT_NULL = 0
         const val ID_FOLDER_NULL = 0
         const val ID_DOMAIN_NULL = 0
-    }
-
-    enum class DataLoadingState {
-        LOADED,
-        LOADING,
-        ERROR,
-        IDLE
     }
 }

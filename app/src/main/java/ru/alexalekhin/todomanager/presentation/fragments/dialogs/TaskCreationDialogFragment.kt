@@ -30,7 +30,7 @@ class TaskCreationDialogFragment : DialogFragment() {
 
         dialogView = View.inflate(this.context, R.layout.task_creation_dialog, null)
 
-        return MaterialAlertDialogBuilder(this.context)
+        return MaterialAlertDialogBuilder(requireContext())
             .setView(dialogView)
             .setTitle(R.string.title_new_task)
             .setPositiveButton(R.string.label_action_create) { _, _ ->

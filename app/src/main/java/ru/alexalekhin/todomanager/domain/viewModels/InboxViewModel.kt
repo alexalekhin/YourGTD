@@ -5,13 +5,12 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
-import ru.alexalekhin.todomanager.domain.models.InboxModel
-
 import ru.alexalekhin.todomanager.data.task.DBTask
-
+import ru.alexalekhin.todomanager.domain.models.InboxTasksRepository
+import ru.alexalekhin.todomanager.domain.viewModels.entities.DataLoadingState
 import javax.inject.Inject
 
-class InboxViewModel @Inject constructor(private val model: InboxModel) : ViewModel() {
+class InboxViewModel @Inject constructor(private val tasksRepository: InboxTasksRepository) : ViewModel() {
 
     val tasksLiveData: MutableLiveData<List<DBTask>> = MutableLiveData(emptyList())
     val dataLoadingState: MutableLiveData<DataLoadingState> = MutableLiveData()
@@ -26,9 +25,9 @@ class InboxViewModel @Inject constructor(private val model: InboxModel) : ViewMo
     fun loadTasksData() {
         viewModelScope.launch {
             //TODO: filter in adapter
-            tasksLiveData.postValue(model.loadTasks().sortedByDescending { it.weight }.filter { !it.checked })
-            currentBiggestWeight = model.getLargestWeight() ?: 0
-            currentBiggestId = model.getLargestId() ?: 0
+            tasksLiveData.postValue(tasksRepository.loadTasks().sortedByDescending { it.weight }.filter { !it.checked })
+            currentBiggestWeight = tasksRepository.getLargestWeight() ?: 0
+            currentBiggestId = tasksRepository.getLargestId() ?: 0
             dataLoadingState.postValue(DataLoadingState.LOADED)
         }
         dataLoadingState.postValue(DataLoadingState.LOADING)
@@ -40,7 +39,7 @@ class InboxViewModel @Inject constructor(private val model: InboxModel) : ViewMo
                 tasks.isEmpty() -> {
                     //TODO: ERROR
                 }
-                else -> model.updateTasks(tasks)
+                else -> tasksRepository.updateTasks(tasks)
             }
         }
     }
@@ -58,7 +57,7 @@ class InboxViewModel @Inject constructor(private val model: InboxModel) : ViewMo
     }
 
     fun addCreatedTask(task: DBTask) {
-        viewModelScope.launch { model.addTask(task.copy()) }
+        viewModelScope.launch { tasksRepository.addTask(task.copy()) }
     }
 
     fun createAndAddTask(taskData: Bundle) {
@@ -74,28 +73,21 @@ class InboxViewModel @Inject constructor(private val model: InboxModel) : ViewMo
                     ++currentBiggestWeight
                 )
             }
-            model.addTask(task)
+            tasksRepository.addTask(task)
         }
     }
 
     fun markTaskAsDone(task: DBTask) {
-        viewModelScope.launch { model.markTaskAsDone(task) }
+        viewModelScope.launch { tasksRepository.markTaskAsDone(task) }
     }
 
     fun deleteTask(task: DBTask) {
-        viewModelScope.launch { model.deleteTask(task) }
+        viewModelScope.launch { tasksRepository.deleteTask(task) }
     }
 
     companion object {
         const val ID_PROJECT_NULL = 0
         const val ID_FOLDER_NULL = 0
         const val ID_DOMAIN_NULL = 0
-    }
-
-    enum class DataLoadingState {
-        LOADED,
-        LOADING,
-        ERROR,
-        IDLE
     }
 }

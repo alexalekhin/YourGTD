@@ -15,53 +15,32 @@ import ru.alexalekhin.todomanager.presentation.misc.ItemTouchHelperAdapter
 import java.util.*
 
 class ProjectTaskAdapter(
-    private val onItemInteractionListener: OnItemInteractionListener
-) :
-    RecyclerView.Adapter<ProjectTaskAdapter.ProjectTaskViewHolder>(),
-    ItemTouchHelperAdapter {
+    private val onCheck: (position: Int) -> Unit,
+    private val onDismiss: (position: Int) -> Unit,
+    private val onItemsReorder: (fromPos: Int, toPos: Int) -> Unit
+) : RecyclerView.Adapter<ProjectTaskAdapter.ProjectTaskViewHolder>(), ItemTouchHelperAdapter {
 
     var tasks: List<DBTask> = emptyList()
-    set(value) {
-        val oldList = tasks
-        val newList = value
-        val callback = CustomDiffUtilsCallback(oldList, newList)
-        field = value
-        DiffUtil.calculateDiff(callback).dispatchUpdatesTo(this)
-    }
+        set(value) {
+            val oldList = tasks
+            val newList = value
+            val callback = CustomDiffUtilsCallback(oldList, newList)
+            field = value
+            DiffUtil.calculateDiff(callback).dispatchUpdatesTo(this)
+        }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ProjectTaskViewHolder {
         val inflater = LayoutInflater.from(parent.context)
         val itemView = inflater.inflate(R.layout.item_task, parent, false)
-        return ProjectTaskViewHolder(
-            itemView,
-            onItemInteractionListener
-        )
+        return ProjectTaskViewHolder(itemView, onCheck)
     }
 
     override fun getItemCount() = tasks.size
 
     override fun onBindViewHolder(holder: ProjectTaskViewHolder, position: Int) {
         val task = tasks[position]
-        with(task) {
-            holder.title.text = title
-            holder.checkBox.isChecked = task.checked
-        }
-    }
-
-    class ProjectTaskViewHolder(
-        itemView: View,
-        private val onItemInteractionListener: OnItemInteractionListener
-    ) :
-        RecyclerView.ViewHolder(itemView),
-        View.OnClickListener {
-        val title: TextView = itemView.textViewTaskTitle
-        val checkBox: CheckBox =
-            itemView.checkBoxTaskMade.apply { setOnClickListener(this@ProjectTaskViewHolder) }
-
-        override fun onClick(v: View?) {
-            checkBox.isEnabled = false
-            onItemInteractionListener.onCheck(adapterPosition)
-        }
+        holder.title.text = task.title
+        holder.checkBox.isChecked = task.checked
     }
 
     override fun onItemMove(fromPosition: Int, toPosition: Int): Boolean {
@@ -84,16 +63,25 @@ class ProjectTaskAdapter(
 
         tasks[fromPosition].weight = weight2
         tasks[toPosition].weight = weight1
-        onItemInteractionListener.onItemsReorder(fromPosition, toPosition)
+        onItemsReorder(fromPosition, toPosition)
     }
 
     override fun onItemDismiss(position: Int) {
-        onItemInteractionListener.onDismiss(position)
+        onDismiss(position)
     }
 
-    interface OnItemInteractionListener {
-        fun onCheck(position: Int)
-        fun onDismiss(position: Int)
-        fun onItemsReorder(fromPos: Int, toPos: Int)
+
+    class ProjectTaskViewHolder(
+        itemView: View,
+        private val onCheck: (position: Int) -> Unit
+    ) : RecyclerView.ViewHolder(itemView), View.OnClickListener {
+        val title: TextView = itemView.textViewTaskTitle
+        val checkBox: CheckBox =
+            itemView.checkBoxTaskMade.apply { setOnClickListener(this@ProjectTaskViewHolder) }
+
+        override fun onClick(v: View?) {
+            checkBox.isEnabled = false
+            onCheck(bindingAdapterPosition)
+        }
     }
 }

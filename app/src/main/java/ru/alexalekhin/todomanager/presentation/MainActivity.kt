@@ -1,23 +1,18 @@
 package ru.alexalekhin.todomanager.presentation
 
 import android.os.Bundle
-import android.view.View
-import android.view.inputmethod.InputMethodManager
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentTransaction.TRANSIT_NONE
-
 import ru.alexalekhin.todomanager.R
 import ru.alexalekhin.todomanager.presentation.fragments.InboxFragment
 import ru.alexalekhin.todomanager.presentation.fragments.MainFlowFragment
 import ru.alexalekhin.todomanager.presentation.fragments.MainFragment
+import ru.alexalekhin.todomanager.presentation.fragments.ProjectFragment
 import ru.alexalekhin.todomanager.presentation.fragments.dialogs.ProjectCreationDialogFragment
 import ru.alexalekhin.todomanager.presentation.fragments.dialogs.ProjectOrDomainSelectionFragment
-import ru.alexalekhin.todomanager.presentation.fragments.ProjectFragment
 import ru.alexalekhin.todomanager.presentation.fragments.dialogs.TaskCreationDialogFragment
 import ru.alexalekhin.todomanager.presentation.misc.OnFragmentInteractionListener
-import java.lang.IllegalArgumentException
 
 class MainActivity : AppCompatActivity(),
     OnFragmentInteractionListener,
@@ -28,6 +23,7 @@ class MainActivity : AppCompatActivity(),
         super.onCreate(savedInstanceState)
 
         setContentView(R.layout.activity_main)
+
         if (savedInstanceState == null) {
             supportFragmentManager.beginTransaction()
                 .replace(
@@ -41,23 +37,18 @@ class MainActivity : AppCompatActivity(),
     }
 
     override fun showAddTaskDialog(projectId: Int?, folderId: Int?) {
-        val ft = supportFragmentManager.beginTransaction()
-            .addToBackStack(TaskCreationDialogFragment.TAG)
         TaskCreationDialogFragment.newInstance(projectId, folderId)
-            .show(ft, TaskCreationDialogFragment.TAG)
+            .show(supportFragmentManager, TaskCreationDialogFragment.TAG)
     }
 
     override fun showAddProjectDialog(folderId: Int?) {
-        val ft = supportFragmentManager.beginTransaction()
         ProjectCreationDialogFragment.newInstance(folderId)
-            .show(ft, ProjectCreationDialogFragment.TAG)
+            .show(supportFragmentManager, ProjectCreationDialogFragment.TAG)
     }
 
     override fun showAddProjectOrDomain() {
-        val ft = supportFragmentManager.beginTransaction()
-            .addToBackStack(ProjectOrDomainSelectionFragment.TAG)
         ProjectOrDomainSelectionFragment.newInstance()
-            .show(ft, ProjectOrDomainSelectionFragment.TAG)
+            .show(supportFragmentManager, ProjectOrDomainSelectionFragment.TAG)
     }
 
     override fun onSuccessfulTaskCreation(taskData: Bundle, projectId: Int?, folderId: Int?) {
@@ -97,10 +88,7 @@ class MainActivity : AppCompatActivity(),
     override fun showProjectEditingDialog(projectId: Int, extraData: Bundle?) {
         val flowFragment = supportFragmentManager.findFragmentByTag(MainFlowFragment.TAG)
         if (flowFragment is MainFlowFragment)
-            flowFragment.showProjectEditingDialog(
-                projectId,
-                extraData
-            )
+            flowFragment.showProjectEditingDialog(projectId, extraData)
     }
 
     override fun openFolder(folderId: Int) {
@@ -125,21 +113,16 @@ class MainActivity : AppCompatActivity(),
         super.onBackPressed()
     }
 
-    override fun hideKeyboard() {
-        val imm = ContextCompat.getSystemService(this, InputMethodManager::class.java)
-        imm!!.hideSoftInputFromWindow(this.currentFocus?.windowToken, 0)
-    }
-
     override fun updateProjectData(projectId: Int) {
         val flowFragment = supportFragmentManager.findFragmentByTag(MainFlowFragment.TAG)
         if (flowFragment is MainFlowFragment) {
-            val fragment =
-                flowFragment.childFragmentManager.findFragmentByTag(ProjectFragment.TAG)
+            val fragment = flowFragment.childFragmentManager.findFragmentByTag(ProjectFragment.TAG)
             if (fragment is ProjectFragment) fragment.viewModel.loadProjectData(projectId)
         }
     }
 
     companion object {
+
         const val BACK_STACK_MIN_COUNT = 1
     }
 }

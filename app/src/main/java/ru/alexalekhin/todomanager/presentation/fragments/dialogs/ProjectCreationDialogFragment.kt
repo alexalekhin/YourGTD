@@ -26,7 +26,7 @@ class ProjectCreationDialogFragment : DialogFragment() {
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val dialogView = View.inflate(this.context, R.layout.fragment_project_creation_dialog, null)
 
-        return MaterialAlertDialogBuilder(this.context)
+        return MaterialAlertDialogBuilder(requireContext())
             .setView(dialogView)
             .setTitle(R.string.title_new_project)
             .setPositiveButton(R.string.label_action_create) { _, _ ->

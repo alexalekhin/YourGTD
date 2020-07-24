@@ -102,7 +102,7 @@ class MainFragment : Fragment(R.layout.fragment_main),
 
     override fun onDismiss(position: Int) {
         val project = mainScreenProjectsAdapter.projects[position].copy()
-        MaterialAlertDialogBuilder(this.context)
+        MaterialAlertDialogBuilder(requireContext())
             .setMessage(R.string.message_deletion_project)
             .setPositiveButton(R.string.label_action_yes) { _, _ ->
                 viewModel.deleteProject(position, project)

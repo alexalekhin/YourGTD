@@ -10,15 +10,14 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.fragment_inbox.*
-
 import ru.alexalekhin.todomanager.R
 import ru.alexalekhin.todomanager.TODOManagerApp
-import ru.alexalekhin.todomanager.presentation.misc.OnFragmentInteractionListener
 import ru.alexalekhin.todomanager.domain.viewModels.InboxViewModel
+import ru.alexalekhin.todomanager.domain.viewModels.entities.DataLoadingState
 import ru.alexalekhin.todomanager.presentation.adapters.InboxTaskAdapter
 import ru.alexalekhin.todomanager.presentation.misc.CustomItemTouchHelperCallback
 import ru.alexalekhin.todomanager.presentation.misc.CustomRecyclerViewAnimator
-
+import ru.alexalekhin.todomanager.presentation.misc.OnFragmentInteractionListener
 import javax.inject.Inject
 
 class InboxFragment : Fragment(R.layout.fragment_inbox),
@@ -26,6 +25,7 @@ class InboxFragment : Fragment(R.layout.fragment_inbox),
     private lateinit var inboxAdapter: InboxTaskAdapter
     private lateinit var itemTouchHelper: ItemTouchHelper
     private var listener: OnFragmentInteractionListener? = null
+
     @Inject
     lateinit var viewModelFactory: ViewModelProvider.Factory
     lateinit var viewModel: InboxViewModel
@@ -70,19 +70,19 @@ class InboxFragment : Fragment(R.layout.fragment_inbox),
 
         viewModel.dataLoadingState.observe(viewLifecycleOwner, Observer {
             when (it) {
-                InboxViewModel.DataLoadingState.LOADED -> {
+                DataLoadingState.LOADED -> {
                     textViewInboxHeader.visibility = View.VISIBLE
                     recyclerViewInboxTasks.visibility = View.VISIBLE
                     cordinatorLayoutInbox.visibility = View.VISIBLE
                 }
-                InboxViewModel.DataLoadingState.LOADING -> {
+                DataLoadingState.LOADING -> {
                     textViewInboxHeader.visibility = View.INVISIBLE
                     recyclerViewInboxTasks.visibility = View.INVISIBLE
                     cordinatorLayoutInbox.visibility = View.INVISIBLE
                 }
-                InboxViewModel.DataLoadingState.ERROR -> {
+                DataLoadingState.ERROR -> {
                 }
-                InboxViewModel.DataLoadingState.IDLE -> {
+                DataLoadingState.IDLE -> {
                 }
                 null -> {
                 }

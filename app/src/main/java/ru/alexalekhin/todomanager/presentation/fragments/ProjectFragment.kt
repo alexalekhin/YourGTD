@@ -12,26 +12,33 @@ import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.fragment_project.*
 import ru.alexalekhin.todomanager.R
 import ru.alexalekhin.todomanager.TODOManagerApp
-import ru.alexalekhin.todomanager.presentation.misc.OnFragmentInteractionListener
-import ru.alexalekhin.todomanager.domain.viewModels.ProjectViewModel
-import ru.alexalekhin.todomanager.presentation.adapters.ProjectTaskAdapter
 import ru.alexalekhin.todomanager.di.ViewModelFactory
+import ru.alexalekhin.todomanager.domain.viewModels.ProjectViewModel
+import ru.alexalekhin.todomanager.domain.viewModels.entities.DataLoadingState
+import ru.alexalekhin.todomanager.presentation.adapters.ProjectTaskAdapter
 import ru.alexalekhin.todomanager.presentation.misc.CustomItemTouchHelperCallback
 import ru.alexalekhin.todomanager.presentation.misc.CustomRecyclerViewAnimator
+import ru.alexalekhin.todomanager.presentation.misc.OnFragmentInteractionListener
 import javax.inject.Inject
 
-class ProjectFragment : Fragment(R.layout.fragment_project),
-    ProjectTaskAdapter.OnItemInteractionListener {
+class ProjectFragment : Fragment(R.layout.fragment_project) {
+
+    @Inject
+    lateinit var viewModelFactory: ViewModelFactory
+
+    lateinit var viewModel: ProjectViewModel
+
     private lateinit var projectTaskAdapter: ProjectTaskAdapter
     private lateinit var itemTouchHelper: ItemTouchHelper
     private var listener: OnFragmentInteractionListener? = null
-    @Inject
-    lateinit var viewModelFactory: ViewModelFactory
-    lateinit var viewModel: ProjectViewModel
+
+    private var projectId: Int? = null
 
     override fun onAttach(context: Context) {
         (context.applicationContext as TODOManagerApp).component.inject(this)
+
         super.onAttach(context)
+
         if (context is OnFragmentInteractionListener) {
             listener = context
         } else {
@@ -40,56 +47,59 @@ class ProjectFragment : Fragment(R.layout.fragment_project),
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        viewModel =
-            ViewModelProvider(
-                this,
-                viewModelFactory
-            )[ProjectViewModel::class.java]
+        viewModel = ViewModelProvider(this, viewModelFactory)[ProjectViewModel::class.java]
         setupObservers()
-        val projectId: Int
-        arguments!!.let {
-            projectId = it.getInt("projectId")
+
+        arguments?.run {
+            projectId = getInt("projectId")
+        }
+
+        projectId?.let { projectId ->
             viewModel.loadProjectData(projectId)
             viewModel.loadTasksDataOfProject(projectId)
         }
 
         with(recyclerViewProjectTasks) {
-            layoutManager = LinearLayoutManager(this@ProjectFragment.activity)
-            projectTaskAdapter =
-                ProjectTaskAdapter(this@ProjectFragment)
-            adapter = projectTaskAdapter
+            layoutManager = LinearLayoutManager(requireActivity())
+            projectTaskAdapter = ProjectTaskAdapter(::onCheck, ::onDismiss, ::onItemsReorder)
+                .also { projectTaskAdapter -> adapter = projectTaskAdapter }
+
             itemTouchHelper = ItemTouchHelper(CustomItemTouchHelperCallback(projectTaskAdapter))
-            itemTouchHelper.attachToRecyclerView(this)
+            itemTouchHelper.attachToRecyclerView(recyclerViewProjectTasks)
+
             itemAnimator = CustomRecyclerViewAnimator()
         }
         floatingActionButtonAddTaskToProject.setOnClickListener {
             listener?.showAddTaskDialog(projectId)
         }
+
         buttonEditProject.setOnClickListener {
-            listener?.showProjectEditingDialog(projectId,
-                Bundle().apply {
-                    putString("projectTitle", textViewProjectTitle.text.toString())
-                    putString("projectDeadline", textViewDeadline.text.toString())
-                    putString("projectDescription", textViewProjectDescription.text.toString())
-                })
+            projectId?.let { projectId ->
+                listener?.showProjectEditingDialog(
+                    projectId = projectId,
+                    extraData = Bundle().apply {
+                        putString("projectTitle", textViewProjectTitle.text.toString())
+                        putString("projectDeadline", textViewDeadline.text.toString())
+                        putString("projectDescription", textViewProjectDescription.text.toString())
+                    })
+            }
         }
     }
 
     private fun setupObservers() {
         viewModel.dataLoadingState.observe(viewLifecycleOwner, Observer {
             when (it) {
-                ProjectViewModel.DataLoadingState.LOADED -> {
+                DataLoadingState.LOADED -> {
                     textViewProjectTitle.visibility = View.VISIBLE
                     recyclerViewProjectTasks.visibility = View.VISIBLE
                 }
-                ProjectViewModel.DataLoadingState.LOADING -> {
+                DataLoadingState.LOADING -> {
                     textViewProjectTitle.visibility = View.INVISIBLE
                     recyclerViewProjectTasks.visibility = View.INVISIBLE
                 }
-                ProjectViewModel.DataLoadingState.ERROR -> {
+                DataLoadingState.ERROR -> {
                 }
-                ProjectViewModel.DataLoadingState.IDLE -> {
+                DataLoadingState.IDLE -> {
                 }
                 null -> {
                 }
@@ -97,11 +107,13 @@ class ProjectFragment : Fragment(R.layout.fragment_project),
         })
 
         viewModel.tasksLiveData.observe(viewLifecycleOwner, Observer { projectTaskAdapter.tasks = it })
-        viewModel.projectLiveData.observe(viewLifecycleOwner, Observer {
-            textViewProjectTitle.text = it.title
-            textViewDeadline.text = it.deadline
-            textViewProjectDescription.text = it.description
-            //TODO: set domain
+        viewModel.projectLiveData.observe(viewLifecycleOwner, Observer { project ->
+            with(project) {
+                textViewProjectTitle.text = title
+                textViewDeadline.text = deadline
+                textViewProjectDescription.text = description
+                //TODO: set domain
+            }
         })
     }
 
@@ -117,47 +129,46 @@ class ProjectFragment : Fragment(R.layout.fragment_project),
         viewModel.addCreatedTaskToProject(task, projectId)
     }
 
-    override fun onCheck(position: Int) {
+    private fun onCheck(position: Int) {
         val task = projectTaskAdapter.tasks[position].copy()
         Snackbar.make(floatingActionButtonAddTaskToProject, R.string.message_snack_bar_task_done, Snackbar.LENGTH_SHORT)
             .setAction(R.string.label_action_undo) {
-                viewModel.updateTasksOfProject(listOf(task), arguments!!.getInt("projectId"))
-                projectTaskAdapter.tasks =
-                    ArrayList(projectTaskAdapter.tasks).apply { add(position, task) }
+                projectId?.let { projectId ->
+                    viewModel.updateTasksOfProject(listOf(task), projectId)
+                }
+                projectTaskAdapter.tasks = ArrayList(projectTaskAdapter.tasks).apply { add(position, task) }
             }.show()
-        viewModel.markTaskAsDone(
-            projectTaskAdapter.tasks[position],
-            arguments!!.getInt("projectId")
-        )
+
+        viewModel.markTaskAsDone(projectTaskAdapter.tasks[position], projectId)
+
         projectTaskAdapter.tasks = ArrayList(projectTaskAdapter.tasks).apply { removeAt(position) }
     }
 
-    override fun onDismiss(position: Int) {
+    private fun onDismiss(position: Int) {
         val task = projectTaskAdapter.tasks[position].copy()
         Snackbar.make(floatingActionButtonAddTaskToProject, R.string.message_snack_bar_task_deleted, Snackbar.LENGTH_SHORT)
             .setAction(R.string.label_action_undo) {
-                viewModel.addCreatedTaskToProject(task, arguments!!.getInt("projectId"))
-                projectTaskAdapter.tasks =
-                    ArrayList(projectTaskAdapter.tasks).apply { add(position, task) }
+                viewModel.addCreatedTaskToProject(task, projectId)
+                projectTaskAdapter.tasks = ArrayList(projectTaskAdapter.tasks).apply { add(position, task) }
             }.show()
 
-        viewModel.deleteTaskFromProject(
-            projectTaskAdapter.tasks[position],
-            arguments!!.getInt("projectId")
-        )
+        projectId?.let { projectId ->
+            viewModel.deleteTaskFromProject(projectTaskAdapter.tasks[position], projectId)
+        }
+
         projectTaskAdapter.tasks = ArrayList(projectTaskAdapter.tasks).apply { removeAt(position) }
     }
 
-    override fun onItemsReorder(fromPos: Int, toPos: Int) {
-        viewModel.updateTasksOfProject(
-            listOf(
-                projectTaskAdapter.tasks[fromPos],
-                projectTaskAdapter.tasks[toPos]
-            ), arguments!!.getInt("projectId")
-        )
+    private fun onItemsReorder(fromPos: Int, toPos: Int) {
+        projectId?.let { projectId ->
+            viewModel.updateTasksOfProject(
+                listOf(projectTaskAdapter.tasks[fromPos], projectTaskAdapter.tasks[toPos]), projectId
+            )
+        }
     }
 
     companion object {
+
         @JvmStatic
         fun newInstance(projectId: Int, extraData: Bundle? = null) =
             ProjectFragment().apply {

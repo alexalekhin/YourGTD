@@ -6,7 +6,7 @@ import ru.alexalekhin.todomanager.data.task.DBTask
 
 import javax.inject.Inject
 
-class ProjectModel @Inject constructor(private val database: TODODatabase) {
+class ProjectDataRepository @Inject constructor(private val database: TODODatabase) {
 
     suspend fun loadProjectData(projectId: Int) = database.projectDao().getById(projectId)
 

@@ -5,7 +5,7 @@ import ru.alexalekhin.todomanager.data.project.DBProject
 
 import javax.inject.Inject
 
-class MainModel @Inject constructor(private val database: TODODatabase) {
+class ProjectsRepository @Inject constructor(private val database: TODODatabase) {
 
     suspend fun addProject(project: DBProject) {
         database.projectDao().insert(project)

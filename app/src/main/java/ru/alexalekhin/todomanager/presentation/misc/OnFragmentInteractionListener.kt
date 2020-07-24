@@ -10,6 +10,5 @@ interface OnFragmentInteractionListener {
     fun onBackPressed()
     fun openFolder(folderId: Int)
     fun openProject(projectId: Int, extraData: Bundle? = null)
-    fun hideKeyboard()
     fun updateProjectData(projectId: Int)
 }

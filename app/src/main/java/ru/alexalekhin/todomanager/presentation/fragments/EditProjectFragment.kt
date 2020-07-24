@@ -6,18 +6,18 @@ import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import kotlinx.android.synthetic.main.fragment_edit_project.*
-
 import ru.alexalekhin.todomanager.R
 import ru.alexalekhin.todomanager.TODOManagerApp
-import ru.alexalekhin.todomanager.presentation.misc.OnFragmentInteractionListener
-import ru.alexalekhin.todomanager.domain.viewModels.ProjectViewModel
 import ru.alexalekhin.todomanager.di.ViewModelFactory
-
+import ru.alexalekhin.todomanager.domain.viewModels.ProjectViewModel
+import ru.alexalekhin.todomanager.presentation.misc.OnFragmentInteractionListener
+import ru.alexalekhin.todomanager.utils.hideKeyboard
 import javax.inject.Inject
 
 class EditProjectFragment : Fragment(R.layout.fragment_edit_project) {
 
     private var listener: OnFragmentInteractionListener? = null
+
     @Inject
     lateinit var viewModelFactory: ViewModelFactory
     lateinit var viewModel: ProjectViewModel
@@ -42,8 +42,9 @@ class EditProjectFragment : Fragment(R.layout.fragment_edit_project) {
         viewModel.loadProjectData(arguments!!.getInt("projectId"))
 
         buttonCancelEditing.setOnClickListener {
+            it.hideKeyboard()
+
             listener?.apply {
-                hideKeyboard()
                 onBackPressed()
             }
         }
@@ -58,9 +59,9 @@ class EditProjectFragment : Fragment(R.layout.fragment_edit_project) {
                 putInt("folderId", 0)
             })
 
+            it.hideKeyboard()
             listener?.apply {
                 updateProjectData(arguments!!.getInt("projectId"))
-                hideKeyboard()
                 onBackPressed()
             }
         }
