@@ -1,0 +1,33 @@
+<resources>
+    <!--STD-->
+    <string name="app_name">ToDoManager</string>
+    <string name="action_settings">Settings</string>
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <!--Miscellaneous-->
+    <string name="new_todo">New To-Do</string>
+    <string name="todo">TODO</string>
+    <!--Titles-->
+    <string name="title_folder_inbox">Inbox</string>
+    <string name="title_project_creation">Create a project</string>
+    <string name="title_domain_creation">Create a domain</string>
+    <string name="title_warning">Warning</string>
+    <string name="title_new_project">New project</string>
+    <string name="title_new_task">New task</string>
+    <!--Messages-->
+    <string name="message_deletion_project">You are trying to remove a project and all its tasks. Are you sure?</string>
+    <string name="message_snack_bar_task_done">Task is done</string>
+    <string name="message_snack_bar_task_deleted">Task is deleted</string>
+    <!--Action labels-->
+    <string name="label_action_create">Create</string>
+    <string name="label_action_cancel">Cancel</string>
+    <string name="label_action_yes">Yes</string>
+    <string name="label_action_no">No</string>
+    <string name="label_action_undo">Undo</string>
+    <!--Hints-->
+    <string name="hint_description">Description</string>
+    <string name="hint_project_title">Project title</string>
+    <string name="hint_project_creation_description">Create a list of tasks to accomplish a goal that needs multiple steps</string>
+    <string name="hint_domain_creation_description">Create a domain that you are responsible for to contain related projects</string>
+    <string name="hint_task_title">Task title</string>
+</resources>
