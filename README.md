@@ -20,11 +20,11 @@ Pretty simple android TODO manager that should make achieving your goals a littl
 
 ## Screenshots
 
-<img src="https://github.com/alexalekhin/YourGTD/blob/dev/img/Screenshot_20190826-114047.png" width="270" height="570" /> <img src="https://github.com/alexalekhin/YourGTD/blob/dev/img/Screenshot_20190826-114317.png" width="270" height="570" /> <img src="https://github.com/alexalekhin/YourGTD/blob/dev/img/Screenshot_20190826-114039.png" width="270" height="570" />
+<img src="https://github.com/alexalekhin/YourGTD/blob/master/img/Screenshot_20190826-114047.png" width="30%"  /> <img src="https://github.com/alexalekhin/YourGTD/blob/master/img/Screenshot_20190826-114317.png" width="30%"  /> <img src="https://github.com/alexalekhin/YourGTD/blob/master/img/Screenshot_20190826-114039.png" width="30%"  />
 
-<img src="https://github.com/alexalekhin/YourGTD/blob/dev/img/Screenshot_20190826-114258.png" width="270" height="570" /> <img src="https://github.com/alexalekhin/YourGTD/blob/dev/img/Screenshot_20190826-114254.png" width="270" height="570" /> <img src="https://github.com/alexalekhin/YourGTD/blob/dev/img/Screenshot_20190826-114125.png" width="270" height="570" />
+<img src="https://github.com/alexalekhin/YourGTD/blob/master/img/Screenshot_20190826-114258.png" width="30%"  /> <img src="https://github.com/alexalekhin/YourGTD/blob/master/img/Screenshot_20190826-114254.png" width="30%"  /> <img src="https://github.com/alexalekhin/YourGTD/blob/master/img/Screenshot_20190826-114125.png" width="30%"  />
 
-<img src="https://github.com/alexalekhin/YourGTD/blob/dev/img/Screenshot_20190826-113904.png" width="270" height="570" /> <img src="https://github.com/alexalekhin/YourGTD/blob/dev/img/Screenshot_20190826-113916.png" width="270" height="570" />
+<img src="https://github.com/alexalekhin/YourGTD/blob/master/img/Screenshot_20190826-113904.png" width="30%"  /> <img src="https://github.com/alexalekhin/YourGTD/blob/master/img/Screenshot_20190826-113916.png" width="30%"  />
 ## Requirements
 __API>=21 (Lollipop)__
 
