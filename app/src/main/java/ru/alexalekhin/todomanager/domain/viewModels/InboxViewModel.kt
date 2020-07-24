@@ -18,10 +18,6 @@ class InboxViewModel @Inject constructor(private val tasksRepository: InboxTasks
     private var currentBiggestWeight = 0
     private var currentBiggestId = 0
 
-    init {
-        loadTasksData()
-    }
-
     fun loadTasksData() {
         viewModelScope.launch {
             //TODO: filter in adapter

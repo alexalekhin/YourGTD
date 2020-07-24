@@ -12,21 +12,21 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.android.synthetic.main.fragment_main.*
 import ru.alexalekhin.todomanager.R
 import ru.alexalekhin.todomanager.TODOManagerApp
-import ru.alexalekhin.todomanager.presentation.misc.OnFragmentInteractionListener
-import ru.alexalekhin.todomanager.domain.viewModels.MainViewModel
-import ru.alexalekhin.todomanager.presentation.adapters.MainScreenProjectsAdapter
 import ru.alexalekhin.todomanager.data.folder.DBFolder
 import ru.alexalekhin.todomanager.di.ViewModelFactory
+import ru.alexalekhin.todomanager.domain.viewModels.MainViewModel
+import ru.alexalekhin.todomanager.presentation.adapters.MainScreenProjectsAdapter
 import ru.alexalekhin.todomanager.presentation.misc.CustomItemTouchHelperCallback
 import ru.alexalekhin.todomanager.presentation.misc.CustomRecyclerViewAnimator
+import ru.alexalekhin.todomanager.presentation.misc.OnFragmentInteractionListener
 import javax.inject.Inject
 
-class MainFragment : Fragment(R.layout.fragment_main),
-    MainScreenProjectsAdapter.OnItemInteractionListener {
+class MainFragment : Fragment(R.layout.fragment_main) {
 
     private lateinit var mainScreenProjectsAdapter: MainScreenProjectsAdapter
     private lateinit var itemTouchHelper: ItemTouchHelper
     private var listener: OnFragmentInteractionListener? = null
+
     @Inject
     lateinit var viewModelFactory: ViewModelFactory
     lateinit var viewModel: MainViewModel
@@ -45,34 +45,35 @@ class MainFragment : Fragment(R.layout.fragment_main),
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
         viewModel = ViewModelProvider(this, viewModelFactory)[MainViewModel::class.java]
         setupObservers()
-        val projects = viewModel.projectLiveData.value!!
+
         with(recyclerViewDomainedProjects) {
             layoutManager = LinearLayoutManager(this@MainFragment.context)
-            mainScreenProjectsAdapter =
-                MainScreenProjectsAdapter(this@MainFragment)
-            mainScreenProjectsAdapter.projects = projects
-            adapter = mainScreenProjectsAdapter
+            mainScreenProjectsAdapter = MainScreenProjectsAdapter(::onProjectClick, ::onItemsReorder, ::onDismiss)
+                .apply { projects = listOf() }
+                .also { mainScreenProjectsAdapter -> adapter = mainScreenProjectsAdapter }
+
+            itemTouchHelper = ItemTouchHelper(CustomItemTouchHelperCallback(mainScreenProjectsAdapter))
+            itemTouchHelper.attachToRecyclerView(recyclerViewDomainedProjects)
+
             itemAnimator = CustomRecyclerViewAnimator()
-            itemTouchHelper =
-                ItemTouchHelper(CustomItemTouchHelperCallback(mainScreenProjectsAdapter))
-            itemTouchHelper.attachToRecyclerView(this)
         }
+
         btn_folder_inbox.setOnClickListener {
             listener?.openFolder(resources.getInteger(R.integer.id_folder_inbox))
         }
         floatinActionButtonAddNewProjectOrDomain.setOnClickListener {
             listener?.showAddProjectOrDomain()
         }
+
+        viewModel.loadProjectsData()
     }
 
     private fun setupObservers() {
-        viewModel.projectLiveData.observe(
-            viewLifecycleOwner,
-            Observer { mainScreenProjectsAdapter.projects = it }
-        )
+        viewModel.projectLiveData.observe(viewLifecycleOwner, Observer { projects ->
+            mainScreenProjectsAdapter.projects = projects
+        })
     }
 
     override fun onStop() {
@@ -91,7 +92,7 @@ class MainFragment : Fragment(R.layout.fragment_main),
         recyclerViewDomainedProjects.scrollToPosition(position)
     }
 
-    override fun onItemsReorder(fromPos: Int, toPos: Int) {
+    private fun onItemsReorder(fromPos: Int, toPos: Int) {
         viewModel.updateProjects(
             listOf(
                 mainScreenProjectsAdapter.projects[fromPos],
@@ -100,28 +101,29 @@ class MainFragment : Fragment(R.layout.fragment_main),
         )
     }
 
-    override fun onDismiss(position: Int) {
+    private fun onDismiss(position: Int) {
         val project = mainScreenProjectsAdapter.projects[position].copy()
+
         MaterialAlertDialogBuilder(requireContext())
             .setMessage(R.string.message_deletion_project)
             .setPositiveButton(R.string.label_action_yes) { _, _ ->
                 viewModel.deleteProject(position, project)
             }
             .setNegativeButton(R.string.label_action_no) { _, _ ->
-                mainScreenProjectsAdapter.projects =
-                    ArrayList(mainScreenProjectsAdapter.projects).apply {
-                        removeAt(position)
-                        add(position, project)
-                    }
+                mainScreenProjectsAdapter.projects = ArrayList(mainScreenProjectsAdapter.projects).apply {
+                    removeAt(position)
+                    add(position, project)
+                }
             }
             .setTitle(R.string.title_warning)
             .show()
     }
 
-    override fun onProjectClick(position: Int) {
+    private fun onProjectClick(position: Int) {
         val project = mainScreenProjectsAdapter.projects[position]
-        listener?.openProject(project.id,
-            Bundle().apply {
+        listener?.openProject(
+            projectId = project.id,
+            extraData = Bundle().apply {
                 putString("projectTitle", project.title)
                 putString("projectDescription", project.description)
                 putString("projectDeadline", project.deadline)
@@ -131,12 +133,7 @@ class MainFragment : Fragment(R.layout.fragment_main),
     companion object {
 
         @JvmStatic
-        fun newInstance() =
-            MainFragment().apply {
-                arguments = Bundle().apply {
-
-                }
-            }
+        fun newInstance() = MainFragment()
 
         const val TAG = "MainFragment"
     }

@@ -8,18 +8,17 @@ import android.widget.TextView
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.item_project.view.*
-
 import ru.alexalekhin.todomanager.R
 import ru.alexalekhin.todomanager.data.project.DBProject
 import ru.alexalekhin.todomanager.presentation.misc.CustomDiffUtilsCallback
 import ru.alexalekhin.todomanager.presentation.misc.ItemTouchHelperAdapter
-
 import java.util.*
 
 class MainScreenProjectsAdapter(
-    private val onItemInteractionListener: OnItemInteractionListener
-) :
-    RecyclerView.Adapter<MainScreenProjectsAdapter.MainScreenProjectViewHolder>(),
+    private val onProjectClick: (position: Int) -> Unit,
+    private val onItemsReorder: (fromPos: Int, toPos: Int) -> Unit,
+    private val onDismiss: (position: Int) -> Unit
+) : RecyclerView.Adapter<MainScreenProjectsAdapter.MainScreenProjectViewHolder>(),
     ItemTouchHelperAdapter {
 
     var projects: List<DBProject> = emptyList()
@@ -34,10 +33,7 @@ class MainScreenProjectsAdapter(
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MainScreenProjectViewHolder {
         val inflater = LayoutInflater.from(parent.context)
         val itemView = inflater.inflate(R.layout.item_project, parent, false)
-        return MainScreenProjectViewHolder(
-            itemView,
-            onItemInteractionListener
-        )
+        return MainScreenProjectViewHolder(itemView, onProjectClick)
     }
 
     override fun getItemCount() = projects.size
@@ -47,22 +43,6 @@ class MainScreenProjectsAdapter(
         with(holder) {
             title.text = folder.title
             image.setImageDrawable(holder.itemView.context.getDrawable(R.drawable.ic_schedule_white_24dp))
-        }
-    }
-
-    class MainScreenProjectViewHolder(
-        itemView: View,
-        private val onItemInteractionListener: OnItemInteractionListener
-    ) : RecyclerView.ViewHolder(itemView), View.OnClickListener {
-        val title: TextView = itemView.textViewProjectTitle
-        val image: ImageView = itemView.imageViewProjectProgress
-
-        init {
-            itemView.setOnClickListener(this)
-        }
-
-        override fun onClick(v: View?) {
-            onItemInteractionListener.onProjectClick(adapterPosition)
         }
     }
 
@@ -86,16 +66,33 @@ class MainScreenProjectsAdapter(
 
         projects[fromPosition].weight = weight2
         projects[toPosition].weight = weight1
-        onItemInteractionListener.onItemsReorder(fromPosition, toPosition)
+        onItemsReorder(fromPosition, toPosition)
     }
 
     override fun onItemDismiss(position: Int) {
-        onItemInteractionListener.onDismiss(position)
+        onDismiss(position)
     }
 
     interface OnItemInteractionListener {
         fun onProjectClick(position: Int)
         fun onItemsReorder(fromPos: Int, toPos: Int)
         fun onDismiss(position: Int)
+    }
+
+
+    class MainScreenProjectViewHolder(
+        itemView: View,
+        private val onProjectClick: (position: Int) -> Unit
+    ) : RecyclerView.ViewHolder(itemView), View.OnClickListener {
+        val title: TextView = itemView.textViewProjectTitle
+        val image: ImageView = itemView.imageViewProjectProgress
+
+        init {
+            itemView.setOnClickListener(this)
+        }
+
+        override fun onClick(v: View?) {
+            onProjectClick(bindingAdapterPosition)
+        }
     }
 }

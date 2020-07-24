@@ -83,6 +83,7 @@ class MainFlowFragment : Fragment(R.layout.fragment_flow_main) {
     }
 
     companion object {
+
         @JvmStatic
         fun newInstance() = MainFlowFragment().apply { arguments = Bundle().apply {} }
 

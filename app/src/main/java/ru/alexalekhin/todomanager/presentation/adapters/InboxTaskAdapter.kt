@@ -15,27 +15,25 @@ import ru.alexalekhin.todomanager.presentation.misc.ItemTouchHelperAdapter
 import java.util.*
 
 class InboxTaskAdapter(
-    private val onItemInteractionListener: OnItemInteractionListener
-) :
-    RecyclerView.Adapter<InboxTaskAdapter.InboxViewHolder>(),
+    private val onCheck: (position: Int) -> Unit,
+    private val onDismiss: (position: Int) -> Unit,
+    private val onItemsReorder: (fromPos: Int, toPos: Int) -> Unit
+) : RecyclerView.Adapter<InboxTaskAdapter.InboxViewHolder>(),
     ItemTouchHelperAdapter {
 
     var tasks: List<DBTask> = emptyList()
-    set(value) {
-        val oldList = tasks
-        val newList = value
-        val callback = CustomDiffUtilsCallback(oldList, newList)
-        field = value
-        DiffUtil.calculateDiff(callback).dispatchUpdatesTo(this)
-    }
+        set(value) {
+            val oldList = tasks
+            val newList = value
+            val callback = CustomDiffUtilsCallback(oldList, newList)
+            field = value
+            DiffUtil.calculateDiff(callback).dispatchUpdatesTo(this)
+        }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): InboxViewHolder {
         val inflater = LayoutInflater.from(parent.context)
         val itemView = inflater.inflate(R.layout.item_task, parent, false)
-        return InboxViewHolder(
-            itemView,
-            onItemInteractionListener
-        )
+        return InboxViewHolder(itemView, onCheck)
     }
 
     override fun getItemCount() = tasks.size
@@ -50,7 +48,7 @@ class InboxTaskAdapter(
 
     class InboxViewHolder(
         itemView: View,
-        private val onItemInteractionListener: OnItemInteractionListener
+        private val onCheck: (position: Int) -> Unit
     ) :
         RecyclerView.ViewHolder(itemView),
         View.OnClickListener {
@@ -60,7 +58,7 @@ class InboxTaskAdapter(
 
         override fun onClick(v: View?) {
             checkBox.isEnabled = false
-            onItemInteractionListener.onCheck(adapterPosition)
+            onCheck(bindingAdapterPosition)
         }
     }
 
@@ -84,16 +82,10 @@ class InboxTaskAdapter(
 
         tasks[fromPosition].weight = weight2
         tasks[toPosition].weight = weight1
-        onItemInteractionListener.onItemsReorder(fromPosition, toPosition)
+        onItemsReorder(fromPosition, toPosition)
     }
 
     override fun onItemDismiss(position: Int) {
-        onItemInteractionListener.onDismiss(position)
-    }
-
-    interface OnItemInteractionListener {
-        fun onCheck(position: Int)
-        fun onDismiss(position: Int)
-        fun onItemsReorder(fromPos: Int, toPos: Int)
+        onDismiss(position)
     }
 }

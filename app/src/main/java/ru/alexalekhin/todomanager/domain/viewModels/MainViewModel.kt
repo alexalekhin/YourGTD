@@ -18,10 +18,6 @@ class MainViewModel @Inject constructor(private val projectsRepository: Projects
     private var currentBiggestProjectId = 0
     private var currentBiggestProjectWeight = 0
 
-    init {
-        loadProjectsData()
-    }
-
     fun createProject(projectData: Bundle): DBProject {
         return with(projectData) {
             DBProject(

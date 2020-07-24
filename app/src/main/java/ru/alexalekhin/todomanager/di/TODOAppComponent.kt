@@ -12,6 +12,7 @@ import javax.inject.Singleton
 @Component(modules = [ViewModelsModule::class, DataBaseModule::class])
 @Singleton
 interface TODOAppComponent {
+
     fun inject(fragment: InboxFragment)
     fun inject(fragment: ProjectFragment)
     fun inject(fragment: EditProjectFragment)

@@ -20,8 +20,7 @@ import ru.alexalekhin.todomanager.presentation.misc.CustomRecyclerViewAnimator
 import ru.alexalekhin.todomanager.presentation.misc.OnFragmentInteractionListener
 import javax.inject.Inject
 
-class InboxFragment : Fragment(R.layout.fragment_inbox),
-    InboxTaskAdapter.OnItemInteractionListener {
+class InboxFragment : Fragment(R.layout.fragment_inbox) {
     private lateinit var inboxAdapter: InboxTaskAdapter
     private lateinit var itemTouchHelper: ItemTouchHelper
     private var listener: OnFragmentInteractionListener? = null
@@ -32,7 +31,9 @@ class InboxFragment : Fragment(R.layout.fragment_inbox),
 
     override fun onAttach(context: Context) {
         (context.applicationContext as TODOManagerApp).component.inject(this)
+
         super.onAttach(context)
+
         if (context is OnFragmentInteractionListener) {
             listener = context
         } else {
@@ -41,28 +42,30 @@ class InboxFragment : Fragment(R.layout.fragment_inbox),
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
         viewModel = ViewModelProvider(this, viewModelFactory)[InboxViewModel::class.java]
         setupObservers()
-        val tasks = viewModel.tasksLiveData.value!!.toList()
+
         with(recyclerViewInboxTasks) {
             layoutManager = LinearLayoutManager(this@InboxFragment.activity)
-            inboxAdapter =
-                InboxTaskAdapter(this@InboxFragment)
-            inboxAdapter.tasks = tasks
-            adapter = inboxAdapter
-            itemAnimator = CustomRecyclerViewAnimator()
+            inboxAdapter = InboxTaskAdapter(::onCheck, ::onDismiss, ::onItemsReorder)
+                .apply { tasks = listOf() }
+                .also { inboxAdapter -> adapter = inboxAdapter }
+
             itemTouchHelper = ItemTouchHelper(CustomItemTouchHelperCallback(inboxAdapter))
-            itemTouchHelper.attachToRecyclerView(this)
+            itemTouchHelper.attachToRecyclerView(recyclerViewInboxTasks)
+
+            itemAnimator = CustomRecyclerViewAnimator()
         }
 
         floatingActionButtonAddTaskToInbox.setOnClickListener {
-            listener!!.showAddTaskDialog(
+            listener?.showAddTaskDialog(
                 null,
                 resources.getInteger(R.integer.id_folder_inbox)
             )
         }
         buttonExitFromInbox.setOnClickListener { listener!!.onBackPressed() }
+
+        viewModel.loadTasksData()
     }
 
     private fun setupObservers() {
@@ -102,13 +105,9 @@ class InboxFragment : Fragment(R.layout.fragment_inbox),
         viewModel.addCreatedTask(task)
     }
 
-    override fun onCheck(position: Int) {
+    private fun onCheck(position: Int) {
         val task = inboxAdapter.tasks[position].copy()
-        Snackbar.make(
-            floatingActionButtonAddTaskToInbox,
-            R.string.message_snack_bar_task_done,
-            Snackbar.LENGTH_SHORT
-        )
+        Snackbar.make(constraintLayoutInboxRoot, R.string.message_snack_bar_task_done, Snackbar.LENGTH_SHORT)
             .setAction(R.string.label_action_undo) {
                 viewModel.updateTasks(listOf(task))
                 inboxAdapter.tasks = ArrayList(inboxAdapter.tasks).apply { add(position, task) }
@@ -118,31 +117,26 @@ class InboxFragment : Fragment(R.layout.fragment_inbox),
         inboxAdapter.tasks = ArrayList(inboxAdapter.tasks).apply { removeAt(position) }
     }
 
-    override fun onDismiss(position: Int) {
+    private fun onDismiss(position: Int) {
         val task = inboxAdapter.tasks[position].copy()
-        Snackbar.make(
-            floatingActionButtonAddTaskToInbox,
-            R.string.message_snack_bar_task_deleted,
-            Snackbar.LENGTH_SHORT
-        )
+
+        Snackbar.make(constraintLayoutInboxRoot, R.string.message_snack_bar_task_deleted, Snackbar.LENGTH_SHORT)
             .setAction(R.string.label_action_undo) {
                 viewModel.addCreatedTask(task)
                 inboxAdapter.tasks = ArrayList(inboxAdapter.tasks).apply { add(position, task) }
             }.show()
+
         viewModel.deleteTask(inboxAdapter.tasks[position])
         inboxAdapter.tasks = ArrayList(inboxAdapter.tasks).apply { removeAt(position) }
     }
 
-    override fun onItemsReorder(fromPos: Int, toPos: Int) {
+    private fun onItemsReorder(fromPos: Int, toPos: Int) {
         viewModel.updateTasks(listOf(inboxAdapter.tasks[fromPos], inboxAdapter.tasks[toPos]))
     }
 
     companion object {
-        fun newInstance() = InboxFragment().apply {
-            arguments = Bundle().apply {
 
-            }
-        }
+        fun newInstance() = InboxFragment()
 
         const val TAG = "InboxFragment"
     }
