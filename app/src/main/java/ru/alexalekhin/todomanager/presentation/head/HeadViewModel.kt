@@ -34,8 +34,7 @@ class HeadViewModel @Inject constructor(private val projectsRepository: Projects
 
     fun addCreatedProject(position: Int, project: DBProject) {
         viewModelScope.launch {
-            projectLiveData.value =
-                ArrayList(projectLiveData.value!!).apply { add(position, project) }
+            projectLiveData.value = ArrayList(projectLiveData.value!!).apply { add(position, project) }
             projectsRepository.addProject(project.copy())
         }
     }
@@ -60,8 +59,7 @@ class HeadViewModel @Inject constructor(private val projectsRepository: Projects
 
     fun deleteProject(position: Int, project: DBProject) {
         viewModelScope.launch {
-            projectLiveData.value =
-                ArrayList(projectLiveData.value!!).apply { removeAt(position) }
+            projectLiveData.value = ArrayList(projectLiveData.value!!).apply { removeAt(position) }
             projectsRepository.deleteProject(project)
         }
     }
@@ -85,6 +83,7 @@ class HeadViewModel @Inject constructor(private val projectsRepository: Projects
     }
 
     companion object {
+
         const val ID_PROJECT_NULL = 0
         const val ID_FOLDER_NULL = 0
         const val ID_DOMAIN_NULL = 0

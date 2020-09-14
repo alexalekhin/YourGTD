@@ -13,17 +13,35 @@
         android:layout_height="wrap_content"
         tools:context=".presentation.project.projecteditor.EditProjectFragment">
 
+        <TextView
+            android:id="@+id/currentDeadlineDate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toEndOf="@id/projectDescriptionTextInput"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="@id/projectDescriptionTextInput"
+            app:layout_constraintTop_toBottomOf="@id/projectDescriptionTextInput" />
+
+        <TextView
+            android:id="@+id/currentDeadlineTime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toEndOf="@id/projectDescriptionTextInput"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="@id/projectDescriptionTextInput"
+            app:layout_constraintTop_toBottomOf="@id/currentDeadlineDate" />
+
         <Button
             android:id="@+id/setDeadline"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="16dp"
-            app:layout_constraintHorizontal_bias="0.0"
             android:text="Set deadline"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/projectDescriptionTextInput" />
+            app:layout_constraintTop_toBottomOf="@+id/currentDeadlineTime" />
 
         <ImageButton
             android:id="@+id/editingDone"

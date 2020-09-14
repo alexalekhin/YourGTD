@@ -1,4 +1,4 @@
-package ru.alexalekhin.todomanager.presentation.deadline
+package ru.alexalekhin.todomanager.presentation.project.projecteditor.deadline
 
 import android.os.Bundle
 import android.view.LayoutInflater

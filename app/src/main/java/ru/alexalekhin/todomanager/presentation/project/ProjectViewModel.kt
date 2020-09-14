@@ -11,8 +11,7 @@ import ru.alexalekhin.todomanager.domain.models.ProjectDataRepository
 import ru.alexalekhin.todomanager.presentation.entities.DataLoadingState
 import javax.inject.Inject
 
-class ProjectViewModel @Inject constructor(private val projectDataRepository: ProjectDataRepository) :
-    ViewModel() {
+class ProjectViewModel @Inject constructor(private val projectDataRepository: ProjectDataRepository) : ViewModel() {
 
     val tasksLiveData: MutableLiveData<List<DBTask>> = MutableLiveData()
     val projectLiveData: MutableLiveData<DBProject> = MutableLiveData()
@@ -29,19 +28,30 @@ class ProjectViewModel @Inject constructor(private val projectDataRepository: Pr
 
     fun updateProjectData(projectData: Bundle) {
         viewModelScope.launch {
-            val project = DBProject(
-                projectLiveData.value!!.id,
-                projectData.getString("projectTitle", ""),
-                projectData.getString("projectDescription", ""),
-                projectData.getString("projectDeadline", ""),
-                projectData.getInt("domainId"),
-                projectData.getInt("folderId"),
-                projectLiveData.value!!.weight
+            val project = projectLiveData.value!!.copy(
+                title = projectData.getString("projectTitle", ""),
+                description = projectData.getString("projectDescription", ""),
+                deadline = projectData.getString("projectDeadline", ""),
+                domainId = projectData.getInt("domainId"),
+                folderId = projectData.getInt("folderId")
             )
+
             projectDataRepository.updateProjectData(project)
             projectLiveData.postValue(project)
         }
     }
+
+    fun updateProjectDeadline(deadline: String) {
+        viewModelScope.launch {
+            val project = projectLiveData.value!!.copy(
+                deadline = deadline
+            )
+
+            projectDataRepository.updateProjectData(project)
+            projectLiveData.postValue(project)
+        }
+    }
+
 
     fun loadTasksDataOfProject(projectId: Int?) {
         viewModelScope.launch {

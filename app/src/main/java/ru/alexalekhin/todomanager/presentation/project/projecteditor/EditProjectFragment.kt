@@ -9,9 +9,9 @@ import kotlinx.android.synthetic.main.fragment_edit_project.*
 import ru.alexalekhin.todomanager.R
 import ru.alexalekhin.todomanager.TODOManagerApp
 import ru.alexalekhin.todomanager.di.ViewModelFactory
-import ru.alexalekhin.todomanager.presentation.deadline.DatePickerFragment
 import ru.alexalekhin.todomanager.presentation.misc.OnFragmentInteractionListener
 import ru.alexalekhin.todomanager.presentation.project.ProjectViewModel
+import ru.alexalekhin.todomanager.presentation.project.projecteditor.deadline.DatePickerFragment
 import ru.alexalekhin.todomanager.utils.hideKeyboard
 import javax.inject.Inject
 
@@ -23,7 +23,7 @@ class EditProjectFragment : Fragment(R.layout.fragment_edit_project) {
     lateinit var viewModelFactory: ViewModelFactory
     private lateinit var viewModel: ProjectViewModel
 
-    private var projectId: Int? = null
+    private val projectId: Int? by lazy { arguments?.getInt("projectId") }
 
     override fun onAttach(context: Context) {
         (context.applicationContext as TODOManagerApp).component.inject(this)
@@ -35,15 +35,11 @@ class EditProjectFragment : Fragment(R.layout.fragment_edit_project) {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
         viewModel = ViewModelProvider(this, viewModelFactory)[ProjectViewModel::class.java]
 
         setPredefinedDataOfProject()
 
-        projectId = arguments?.getInt("projectId")
-        projectId?.let { projectId ->
-            viewModel.loadProjectData(projectId)
-        }
+        projectId?.let { projectId -> viewModel.loadProjectData(projectId) }
 
         cancelEditing.setOnClickListener {
             it.hideKeyboard()
@@ -53,7 +49,6 @@ class EditProjectFragment : Fragment(R.layout.fragment_edit_project) {
         }
         editingDone.setOnClickListener {
             viewModel.updateProjectData(Bundle().apply {
-                //                putInt("projectId", arguments!!.getInt("projectId"))
                 putString("projectTitle", projectTitleEditText.text.toString())
                 putString("projectDescription", projectDescriptionEditText.text.toString())
                 putString("projectDeadline", "")
@@ -64,20 +59,16 @@ class EditProjectFragment : Fragment(R.layout.fragment_edit_project) {
 
             it.hideKeyboard()
             listener?.run {
-                projectId?.let { projectId ->
-                    updateProjectData(projectId)
-                }
+                projectId?.let { projectId -> updateProjectData(projectId) }
                 onBackPressed()
             }
         }
 
         setDeadline.setOnClickListener {
-            DatePickerFragment.newInstance().show(requireActivity().supportFragmentManager, DatePickerFragment.TAG)
+            projectId?.let { projectId ->
+                DatePickerFragment.newInstance(projectId).show(requireActivity().supportFragmentManager, DatePickerFragment.TAG)
+            }
         }
-
-//        calendarViewDeadlinePicker.setOnDateChangeListener { _, year, month, dayOfMonth ->
-//            deadlineDate = "$dayOfMonth/${month + 1}/$year"
-//        }
     }
 
     private fun setPredefinedDataOfProject() {
@@ -99,9 +90,7 @@ class EditProjectFragment : Fragment(R.layout.fragment_edit_project) {
             EditProjectFragment().apply {
                 arguments = Bundle().apply {
                     putInt("projectId", projectId)
-                    extraData?.let {
-                        putAll(it)
-                    }
+                    extraData?.let { putAll(it) }
                 }
             }
 
