@@ -5,7 +5,7 @@
     android:id="@+id/constraintLayoutMainScreenRoot"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".presentation.fragments.MainFragment">
+    tools:context=".presentation.head.HeadFragment">
 
     <LinearLayout
         android:id="@+id/linearLayoutMainScreenFolders"
@@ -22,11 +22,6 @@
             layout="@layout/item_folder"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
-        <!--<androidx.recyclerview.widget.RecyclerView-->
-        <!--android:id="@+id/rv_folders"-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--tools:listitem="@layout/item_project" />-->
 
     </LinearLayout>
 
@@ -46,6 +41,7 @@
             android:layout_marginTop="@dimen/activity_vertical_margin"
             android:layout_marginBottom="@dimen/activity_vertical_margin"
             android:nestedScrollingEnabled="false"
+            android:overScrollMode="never"
             android:splitMotionEvents="false"
             tools:listitem="@layout/item_project" />
 

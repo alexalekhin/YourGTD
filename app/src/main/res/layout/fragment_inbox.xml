@@ -5,7 +5,7 @@
     android:id="@+id/constraintLayoutInboxRoot"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".presentation.fragments.InboxFragment">
+    tools:context=".presentation.inbox.InboxFragment">
 
     <ImageButton
         android:id="@+id/buttonExitFromInbox"

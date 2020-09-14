@@ -1,4 +1,4 @@
-package ru.alexalekhin.todomanager.domain.viewModels
+package ru.alexalekhin.todomanager.presentation.inbox
 
 import android.os.Bundle
 import androidx.lifecycle.MutableLiveData
@@ -7,7 +7,7 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
 import ru.alexalekhin.todomanager.data.task.DBTask
 import ru.alexalekhin.todomanager.domain.models.InboxTasksRepository
-import ru.alexalekhin.todomanager.domain.viewModels.entities.DataLoadingState
+import ru.alexalekhin.todomanager.presentation.entities.DataLoadingState
 import javax.inject.Inject
 
 class InboxViewModel @Inject constructor(private val tasksRepository: InboxTasksRepository) : ViewModel() {

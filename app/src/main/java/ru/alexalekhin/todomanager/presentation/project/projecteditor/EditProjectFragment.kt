@@ -1,4 +1,4 @@
-package ru.alexalekhin.todomanager.presentation.fragments
+package ru.alexalekhin.todomanager.presentation.project.projecteditor
 
 import android.content.Context
 import android.os.Bundle
@@ -9,8 +9,9 @@ import kotlinx.android.synthetic.main.fragment_edit_project.*
 import ru.alexalekhin.todomanager.R
 import ru.alexalekhin.todomanager.TODOManagerApp
 import ru.alexalekhin.todomanager.di.ViewModelFactory
-import ru.alexalekhin.todomanager.domain.viewModels.ProjectViewModel
+import ru.alexalekhin.todomanager.presentation.deadline.DatePickerFragment
 import ru.alexalekhin.todomanager.presentation.misc.OnFragmentInteractionListener
+import ru.alexalekhin.todomanager.presentation.project.ProjectViewModel
 import ru.alexalekhin.todomanager.utils.hideKeyboard
 import javax.inject.Inject
 
@@ -20,7 +21,9 @@ class EditProjectFragment : Fragment(R.layout.fragment_edit_project) {
 
     @Inject
     lateinit var viewModelFactory: ViewModelFactory
-    lateinit var viewModel: ProjectViewModel
+    private lateinit var viewModel: ProjectViewModel
+
+    private var projectId: Int? = null
 
     override fun onAttach(context: Context) {
         (context.applicationContext as TODOManagerApp).component.inject(this)
@@ -28,52 +31,59 @@ class EditProjectFragment : Fragment(R.layout.fragment_edit_project) {
         super.onAttach(context)
         if (context is OnFragmentInteractionListener) {
             listener = context
-        } else {
-            throw IllegalStateException("$context must implement OnFragmentInteractionListener")
-        }
+        } else throw IllegalStateException("$context must implement OnFragmentInteractionListener")
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        var deadlineDate = ""
         viewModel = ViewModelProvider(this, viewModelFactory)[ProjectViewModel::class.java]
 
         setPredefinedDataOfProject()
-        viewModel.loadProjectData(arguments!!.getInt("projectId"))
 
-        buttonCancelEditing.setOnClickListener {
+        projectId = arguments?.getInt("projectId")
+        projectId?.let { projectId ->
+            viewModel.loadProjectData(projectId)
+        }
+
+        cancelEditing.setOnClickListener {
             it.hideKeyboard()
 
-            listener?.apply {
-                onBackPressed()
-            }
+            listener?.onBackPressed()
+
         }
-        buttonEditingDone.setOnClickListener {
+        editingDone.setOnClickListener {
             viewModel.updateProjectData(Bundle().apply {
                 //                putInt("projectId", arguments!!.getInt("projectId"))
-                putString("projectTitle", editTextProjectCreationTitle.text.toString())
-                putString("projectDescription", editTextProjectDescription.text.toString())
-                putString("projectDeadline", deadlineDate)
+                putString("projectTitle", projectTitleEditText.text.toString())
+                putString("projectDescription", projectDescriptionEditText.text.toString())
+                putString("projectDeadline", "")
                 //TODO: add domain ID and folder ID
                 putInt("domainId", 0)
                 putInt("folderId", 0)
             })
 
             it.hideKeyboard()
-            listener?.apply {
-                updateProjectData(arguments!!.getInt("projectId"))
+            listener?.run {
+                projectId?.let { projectId ->
+                    updateProjectData(projectId)
+                }
                 onBackPressed()
             }
         }
-        calendarViewDeadlinePicker.setOnDateChangeListener { _, year, month, dayOfMonth ->
-            deadlineDate = "$dayOfMonth/${month + 1}/$year"
+
+        setDeadline.setOnClickListener {
+            DatePickerFragment.newInstance().show(requireActivity().supportFragmentManager, DatePickerFragment.TAG)
         }
+
+//        calendarViewDeadlinePicker.setOnDateChangeListener { _, year, month, dayOfMonth ->
+//            deadlineDate = "$dayOfMonth/${month + 1}/$year"
+//        }
     }
 
     private fun setPredefinedDataOfProject() {
         arguments?.let {
-            editTextProjectCreationTitle.setText(it.getString("projectTitle", ""))
-            editTextProjectDescription.setText(it.getString("projectDescription", ""))
+            projectTitleEditText.setText(it.getString("projectTitle", ""))
+            projectDescriptionEditText.setText(it.getString("projectDescription", ""))
         }
     }
 

@@ -1,4 +1,4 @@
-package ru.alexalekhin.todomanager.presentation.fragments.dialogs
+package ru.alexalekhin.todomanager.presentation.projectcreator
 
 import android.app.Dialog
 import android.content.Context
@@ -6,9 +6,11 @@ import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.DialogFragment
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import kotlinx.android.synthetic.main.fragment_project_creation_dialog.*
 import kotlinx.android.synthetic.main.fragment_project_creation_dialog.view.*
 
 import ru.alexalekhin.todomanager.R
+import ru.alexalekhin.todomanager.utils.showKeyboard
 
 class ProjectCreationDialogFragment : DialogFragment() {
 
@@ -18,22 +20,20 @@ class ProjectCreationDialogFragment : DialogFragment() {
         super.onAttach(context)
         if (context is ProjectCreationListener) {
             listener = context
-        } else {
-            throw IllegalStateException("$context must implement ProjectCreationListener")
-        }
+        } else throw IllegalStateException("$context must implement ProjectCreationListener")
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        val dialogView = View.inflate(this.context, R.layout.fragment_project_creation_dialog, null)
+        val dialogView = View.inflate(requireContext(), R.layout.fragment_project_creation_dialog, null)
 
         return MaterialAlertDialogBuilder(requireContext())
             .setView(dialogView)
             .setTitle(R.string.title_new_project)
             .setPositiveButton(R.string.label_action_create) { _, _ ->
-                listener!!.onSuccessfulProjectCreation(
+                listener?.onSuccessfulProjectCreation(
                     Bundle().apply {
                         putInt("projectId", resources.getInteger(R.integer.id_project_null))
-                        putString("projectTitle", dialogView.editTextProjectCreationTitle.text.toString())
+                        putString("projectTitle", dialogView.projectTitleEditText.text.toString())
                         putString("projectDescription", "")
                         putString("projectDeadline", "")
                         putInt("domainId", resources.getInteger(R.integer.id_domain_null))
@@ -47,6 +47,11 @@ class ProjectCreationDialogFragment : DialogFragment() {
             .create()
     }
 
+    override fun onStart() {
+        super.onStart()
+        dialog?.projectTitleEditText?.showKeyboard()
+    }
+
     override fun onDetach() {
         listener = null
         super.onDetach()
@@ -55,11 +60,7 @@ class ProjectCreationDialogFragment : DialogFragment() {
     companion object {
         @JvmStatic
         fun newInstance(domainId: Int? = null) =
-            ProjectCreationDialogFragment().apply {
-                arguments = Bundle().apply {
-
-                }
-            }
+            ProjectCreationDialogFragment()
 
         const val TAG = "ProjectCreationDialogFragment"
     }

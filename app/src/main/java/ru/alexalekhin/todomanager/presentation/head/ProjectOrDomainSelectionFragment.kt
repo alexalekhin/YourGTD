@@ -1,4 +1,4 @@
-package ru.alexalekhin.todomanager.presentation.fragments.dialogs
+package ru.alexalekhin.todomanager.presentation.head
 
 import android.content.Context
 import android.os.Bundle
@@ -11,6 +11,7 @@ import ru.alexalekhin.todomanager.R
 import ru.alexalekhin.todomanager.presentation.misc.OnFragmentInteractionListener
 
 class ProjectOrDomainSelectionFragment : BottomSheetDialogFragment() {
+
     private var listener: OnFragmentInteractionListener? = null
 
     override fun onCreateView(
@@ -24,7 +25,7 @@ class ProjectOrDomainSelectionFragment : BottomSheetDialogFragment() {
         super.onViewCreated(view, savedInstanceState)
         constraintLayoutProjectCreation.setOnClickListener {
             dismiss()
-            listener!!.showAddProjectDialog(null)
+            listener?.showAddProjectDialog(null)
         }
     }
 
@@ -45,11 +46,7 @@ class ProjectOrDomainSelectionFragment : BottomSheetDialogFragment() {
     companion object {
         @JvmStatic
         fun newInstance() =
-            ProjectOrDomainSelectionFragment().apply {
-                arguments = Bundle().apply {
-
-                }
-            }
+            ProjectOrDomainSelectionFragment()
 
         const val TAG = "ProjectOrDomainSelectionFragment"
     }

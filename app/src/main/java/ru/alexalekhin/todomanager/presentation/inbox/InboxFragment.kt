@@ -1,4 +1,4 @@
-package ru.alexalekhin.todomanager.presentation.fragments
+package ru.alexalekhin.todomanager.presentation.inbox
 
 import android.content.Context
 import android.os.Bundle
@@ -12,9 +12,7 @@ import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.fragment_inbox.*
 import ru.alexalekhin.todomanager.R
 import ru.alexalekhin.todomanager.TODOManagerApp
-import ru.alexalekhin.todomanager.domain.viewModels.InboxViewModel
-import ru.alexalekhin.todomanager.domain.viewModels.entities.DataLoadingState
-import ru.alexalekhin.todomanager.presentation.adapters.InboxTaskAdapter
+import ru.alexalekhin.todomanager.presentation.entities.DataLoadingState
 import ru.alexalekhin.todomanager.presentation.misc.CustomItemTouchHelperCallback
 import ru.alexalekhin.todomanager.presentation.misc.CustomRecyclerViewAnimator
 import ru.alexalekhin.todomanager.presentation.misc.OnFragmentInteractionListener

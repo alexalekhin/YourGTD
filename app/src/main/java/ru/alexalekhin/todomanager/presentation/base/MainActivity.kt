@@ -1,17 +1,16 @@
-package ru.alexalekhin.todomanager.presentation
+package ru.alexalekhin.todomanager.presentation.base
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentTransaction.TRANSIT_NONE
 import ru.alexalekhin.todomanager.R
-import ru.alexalekhin.todomanager.presentation.fragments.InboxFragment
-import ru.alexalekhin.todomanager.presentation.fragments.MainFlowFragment
-import ru.alexalekhin.todomanager.presentation.fragments.MainFragment
-import ru.alexalekhin.todomanager.presentation.fragments.ProjectFragment
-import ru.alexalekhin.todomanager.presentation.fragments.dialogs.ProjectCreationDialogFragment
-import ru.alexalekhin.todomanager.presentation.fragments.dialogs.ProjectOrDomainSelectionFragment
-import ru.alexalekhin.todomanager.presentation.fragments.dialogs.TaskCreationDialogFragment
+import ru.alexalekhin.todomanager.presentation.inbox.InboxFragment
+import ru.alexalekhin.todomanager.presentation.head.HeadFragment
+import ru.alexalekhin.todomanager.presentation.project.ProjectFragment
+import ru.alexalekhin.todomanager.presentation.projectcreator.ProjectCreationDialogFragment
+import ru.alexalekhin.todomanager.presentation.head.ProjectOrDomainSelectionFragment
+import ru.alexalekhin.todomanager.presentation.taskcreator.TaskCreationDialogFragment
 import ru.alexalekhin.todomanager.presentation.misc.OnFragmentInteractionListener
 
 class MainActivity : AppCompatActivity(),
@@ -59,12 +58,10 @@ class MainActivity : AppCompatActivity(),
                     when (folderId) {
                         resources.getInteger(R.integer.id_folder_inbox) -> {
                             flowFragment.childFragmentManager.findFragmentByTag(InboxFragment.TAG)
-                                ?: flowFragment.childFragmentManager.findFragmentByTag(MainFragment.TAG)
+                                ?: flowFragment.childFragmentManager.findFragmentByTag(HeadFragment.TAG)
                         }
                         //add other folders here
-                        else -> {
-                            throw IllegalArgumentException("projectId and folderId can't be null at the same time")
-                        }
+                        else -> throw IllegalArgumentException("projectId and folderId can't be null at the same time")
                     }
                 } else {
                     flowFragment.childFragmentManager.findFragmentByTag(ProjectFragment.TAG)
@@ -80,8 +77,8 @@ class MainActivity : AppCompatActivity(),
     override fun onSuccessfulProjectCreation(projectData: Bundle, domainId: Int?) {
         val mainFlowFragment = supportFragmentManager.findFragmentByTag(MainFlowFragment.TAG)
         if (mainFlowFragment is MainFlowFragment) {
-            val fragment = mainFlowFragment.childFragmentManager.findFragmentByTag(MainFragment.TAG)
-            if (fragment is MainFragment) fragment.onAddProject(projectData)
+            val fragment = mainFlowFragment.childFragmentManager.findFragmentByTag(HeadFragment.TAG)
+            if (fragment is HeadFragment) fragment.onAddProject(projectData)
         }
     }
 

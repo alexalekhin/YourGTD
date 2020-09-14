@@ -1,4 +1,4 @@
-package ru.alexalekhin.todomanager.domain.viewModels
+package ru.alexalekhin.todomanager.presentation.head
 
 import android.os.Bundle
 import androidx.lifecycle.MutableLiveData
@@ -7,10 +7,10 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
 import ru.alexalekhin.todomanager.data.project.DBProject
 import ru.alexalekhin.todomanager.domain.models.ProjectsRepository
-import ru.alexalekhin.todomanager.domain.viewModels.entities.DataLoadingState
+import ru.alexalekhin.todomanager.presentation.entities.DataLoadingState
 import javax.inject.Inject
 
-class MainViewModel @Inject constructor(private val projectsRepository: ProjectsRepository) : ViewModel() {
+class HeadViewModel @Inject constructor(private val projectsRepository: ProjectsRepository) : ViewModel() {
 
     val projectLiveData: MutableLiveData<List<DBProject>> = MutableLiveData()
     val dataLoadingState: MutableLiveData<DataLoadingState> = MutableLiveData()

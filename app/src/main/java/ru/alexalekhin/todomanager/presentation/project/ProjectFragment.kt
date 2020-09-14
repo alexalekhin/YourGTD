@@ -1,8 +1,9 @@
-package ru.alexalekhin.todomanager.presentation.fragments
+package ru.alexalekhin.todomanager.presentation.project
 
 import android.content.Context
 import android.os.Bundle
 import android.view.View
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -13,9 +14,7 @@ import kotlinx.android.synthetic.main.fragment_project.*
 import ru.alexalekhin.todomanager.R
 import ru.alexalekhin.todomanager.TODOManagerApp
 import ru.alexalekhin.todomanager.di.ViewModelFactory
-import ru.alexalekhin.todomanager.domain.viewModels.ProjectViewModel
-import ru.alexalekhin.todomanager.domain.viewModels.entities.DataLoadingState
-import ru.alexalekhin.todomanager.presentation.adapters.ProjectTaskAdapter
+import ru.alexalekhin.todomanager.presentation.entities.DataLoadingState
 import ru.alexalekhin.todomanager.presentation.misc.CustomItemTouchHelperCallback
 import ru.alexalekhin.todomanager.presentation.misc.CustomRecyclerViewAnimator
 import ru.alexalekhin.todomanager.presentation.misc.OnFragmentInteractionListener
@@ -58,29 +57,28 @@ class ProjectFragment : Fragment(R.layout.fragment_project) {
             viewModel.loadProjectData(projectId)
             viewModel.loadTasksDataOfProject(projectId)
         }
-
-        with(recyclerViewProjectTasks) {
+        with(projectTasks) {
             layoutManager = LinearLayoutManager(requireActivity())
             projectTaskAdapter = ProjectTaskAdapter(::onCheck, ::onDismiss, ::onItemsReorder)
                 .also { projectTaskAdapter -> adapter = projectTaskAdapter }
 
             itemTouchHelper = ItemTouchHelper(CustomItemTouchHelperCallback(projectTaskAdapter))
-            itemTouchHelper.attachToRecyclerView(recyclerViewProjectTasks)
+            itemTouchHelper.attachToRecyclerView(projectTasks)
 
             itemAnimator = CustomRecyclerViewAnimator()
         }
-        floatingActionButtonAddTaskToProject.setOnClickListener {
+        addTaskToProjectFAB.setOnClickListener {
             listener?.showAddTaskDialog(projectId)
         }
 
-        buttonEditProject.setOnClickListener {
+        editProjectButton.setOnClickListener {
             projectId?.let { projectId ->
                 listener?.showProjectEditingDialog(
                     projectId = projectId,
                     extraData = Bundle().apply {
-                        putString("projectTitle", textViewProjectTitle.text.toString())
-                        putString("projectDeadline", textViewDeadline.text.toString())
-                        putString("projectDescription", textViewProjectDescription.text.toString())
+                        putString("projectTitle", projectTitle.text.toString())
+                        putString("projectDeadline", projectDeadline.text.toString())
+                        putString("projectDescription", projectDescription.text.toString())
                     })
             }
         }
@@ -90,18 +88,18 @@ class ProjectFragment : Fragment(R.layout.fragment_project) {
         viewModel.dataLoadingState.observe(viewLifecycleOwner, Observer {
             when (it) {
                 DataLoadingState.LOADED -> {
-                    textViewProjectTitle.visibility = View.VISIBLE
-                    recyclerViewProjectTasks.visibility = View.VISIBLE
+                    projectTitle.visibility = View.VISIBLE
+                    projectTasks.visibility = View.VISIBLE
                 }
                 DataLoadingState.LOADING -> {
-                    textViewProjectTitle.visibility = View.INVISIBLE
-                    recyclerViewProjectTasks.visibility = View.INVISIBLE
+                    projectTitle.visibility = View.INVISIBLE
+                    projectTasks.visibility = View.INVISIBLE
                 }
                 DataLoadingState.ERROR -> {
                 }
                 DataLoadingState.IDLE -> {
                 }
-                null -> {
+                else -> {
                 }
             }
         })
@@ -109,9 +107,15 @@ class ProjectFragment : Fragment(R.layout.fragment_project) {
         viewModel.tasksLiveData.observe(viewLifecycleOwner, Observer { projectTaskAdapter.tasks = it })
         viewModel.projectLiveData.observe(viewLifecycleOwner, Observer { project ->
             with(project) {
-                textViewProjectTitle.text = title
-                textViewDeadline.text = deadline
-                textViewProjectDescription.text = description
+                projectTitle.text = title
+                with(projectDeadline) {
+                    text = deadline
+                    isVisible = deadline.isNotBlank()
+                }
+                with(projectDescription) {
+                    text = description
+                    isVisible = description.isNotBlank()
+                }
                 //TODO: set domain
             }
         })
@@ -125,13 +129,13 @@ class ProjectFragment : Fragment(R.layout.fragment_project) {
     fun onAdd(taskData: Bundle, projectId: Int?, position: Int = 0) {
         val task = viewModel.createTaskInProject(taskData, projectId)
         projectTaskAdapter.tasks = ArrayList(projectTaskAdapter.tasks).apply { add(position, task) }
-        recyclerViewProjectTasks.scrollToPosition(position)
+        projectTasks.scrollToPosition(position)
         viewModel.addCreatedTaskToProject(task, projectId)
     }
 
     private fun onCheck(position: Int) {
         val task = projectTaskAdapter.tasks[position].copy()
-        Snackbar.make(floatingActionButtonAddTaskToProject, R.string.message_snack_bar_task_done, Snackbar.LENGTH_SHORT)
+        Snackbar.make(addTaskToProjectFAB, R.string.message_snack_bar_task_done, Snackbar.LENGTH_SHORT)
             .setAction(R.string.label_action_undo) {
                 projectId?.let { projectId ->
                     viewModel.updateTasksOfProject(listOf(task), projectId)
@@ -146,7 +150,7 @@ class ProjectFragment : Fragment(R.layout.fragment_project) {
 
     private fun onDismiss(position: Int) {
         val task = projectTaskAdapter.tasks[position].copy()
-        Snackbar.make(floatingActionButtonAddTaskToProject, R.string.message_snack_bar_task_deleted, Snackbar.LENGTH_SHORT)
+        Snackbar.make(addTaskToProjectFAB, R.string.message_snack_bar_task_deleted, Snackbar.LENGTH_SHORT)
             .setAction(R.string.label_action_undo) {
                 viewModel.addCreatedTaskToProject(task, projectId)
                 projectTaskAdapter.tasks = ArrayList(projectTaskAdapter.tasks).apply { add(position, task) }

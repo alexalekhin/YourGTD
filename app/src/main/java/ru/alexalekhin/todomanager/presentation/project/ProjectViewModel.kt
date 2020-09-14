@@ -1,4 +1,4 @@
-package ru.alexalekhin.todomanager.domain.viewModels
+package ru.alexalekhin.todomanager.presentation.project
 
 import android.os.Bundle
 import androidx.lifecycle.MutableLiveData
@@ -8,13 +8,13 @@ import kotlinx.coroutines.launch
 import ru.alexalekhin.todomanager.data.project.DBProject
 import ru.alexalekhin.todomanager.data.task.DBTask
 import ru.alexalekhin.todomanager.domain.models.ProjectDataRepository
-import ru.alexalekhin.todomanager.domain.viewModels.entities.DataLoadingState
+import ru.alexalekhin.todomanager.presentation.entities.DataLoadingState
 import javax.inject.Inject
 
 class ProjectViewModel @Inject constructor(private val projectDataRepository: ProjectDataRepository) :
     ViewModel() {
 
-    val tasksLiveData: MutableLiveData<List<DBTask>> = MutableLiveData(emptyList())
+    val tasksLiveData: MutableLiveData<List<DBTask>> = MutableLiveData()
     val projectLiveData: MutableLiveData<DBProject> = MutableLiveData()
     val dataLoadingState: MutableLiveData<DataLoadingState> = MutableLiveData()
 
@@ -22,7 +22,9 @@ class ProjectViewModel @Inject constructor(private val projectDataRepository: Pr
     private var currentBiggestTaskId: Int = 0
 
     fun loadProjectData(projectId: Int) {
-        viewModelScope.launch { projectLiveData.postValue(projectDataRepository.loadProjectData(projectId)) }
+        viewModelScope.launch {
+            projectLiveData.postValue(projectDataRepository.loadProjectData(projectId))
+        }
     }
 
     fun updateProjectData(projectData: Bundle) {
@@ -42,16 +44,20 @@ class ProjectViewModel @Inject constructor(private val projectDataRepository: Pr
     }
 
     fun loadTasksDataOfProject(projectId: Int?) {
-        dataLoadingState.postValue(DataLoadingState.LOADING)
         viewModelScope.launch {
             //TODO: filter in adapter
-            currentBiggestTaskWeight = projectDataRepository.getLargestWeight() ?: 0
-            currentBiggestTaskId = projectDataRepository.getLargestTaskId() ?: 0
-            tasksLiveData.postValue(
-                projectDataRepository.loadTasksOfProject(projectId)
-                    .sortedByDescending { it.weight }
-                    .filter { !it.checked }
-            )
+            if (tasksLiveData.value == null) {
+                dataLoadingState.postValue(DataLoadingState.LOADING)
+
+                currentBiggestTaskWeight = projectDataRepository.getLargestWeight() ?: 0
+                currentBiggestTaskId = projectDataRepository.getLargestTaskId() ?: 0
+
+                tasksLiveData.postValue(
+                    projectDataRepository.loadTasksOfProject(projectId)
+                        .sortedByDescending { it.weight }
+                        .filter { !it.checked }
+                )
+            }
             dataLoadingState.postValue(DataLoadingState.LOADED)
         }
     }

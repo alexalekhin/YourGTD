@@ -1,4 +1,4 @@
-package ru.alexalekhin.todomanager.domain.viewModels.entities
+package ru.alexalekhin.todomanager.presentation.entities
 
 enum class DataLoadingState {
     LOADED,

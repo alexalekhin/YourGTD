@@ -1,4 +1,4 @@
-package ru.alexalekhin.todomanager.presentation.adapters
+package ru.alexalekhin.todomanager.presentation.project
 
 import android.view.LayoutInflater
 import android.view.View

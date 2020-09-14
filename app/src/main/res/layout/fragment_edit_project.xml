@@ -8,80 +8,68 @@
     android:background="@color/colorMaterialBackgroundDark">
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/constraintLayoutEditProjectRoot"
+        android:id="@+id/editProjectRoot"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        tools:context=".presentation.fragments.EditProjectFragment">
+        tools:context=".presentation.project.projecteditor.EditProjectFragment">
 
-
-        <CalendarView
-            android:id="@+id/calendarViewDeadlinePicker"
-            style="@android:style/Widget.Material.CalendarView"
-            android:layout_width="0dp"
+        <Button
+            android:id="@+id/setDeadline"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="16dp"
-            android:layout_marginEnd="16dp"
-            android:alwaysDrawnWithCache="false"
+            android:layout_margin="16dp"
+            app:layout_constraintHorizontal_bias="0.0"
+            android:text="Set deadline"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/textInputLayoutProjectDescription" />
+            app:layout_constraintTop_toBottomOf="@+id/projectDescriptionTextInput" />
 
         <ImageButton
-            android:id="@+id/buttonEditingDone"
+            android:id="@+id/editingDone"
             style="@style/Widget.MaterialComponents.Button.OutlinedButton"
             android:layout_width="48dp"
             android:layout_height="48dp"
-            android:layout_marginTop="8dp"
             android:layout_marginEnd="8dp"
             android:contentDescription="@string/todo"
             android:src="@drawable/ic_done_white_24dp"
+            app:layout_constraintBottom_toBottomOf="@+id/projectTitleTextInput"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="@+id/projectTitleTextInput" />
 
         <ImageButton
-            android:id="@+id/buttonCancelEditing"
+            android:id="@+id/cancelEditing"
             style="@style/Widget.MaterialComponents.Button.OutlinedButton"
             android:layout_width="48dp"
             android:layout_height="48dp"
-            android:layout_marginTop="8dp"
             android:layout_marginEnd="16dp"
             android:contentDescription="@string/todo"
             android:src="@drawable/ic_close_white_24dp"
-            app:layout_constraintEnd_toStartOf="@+id/buttonEditingDone"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <Spinner
-            android:id="@+id/spinnerProjectDomain"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="16dp"
-            android:layout_marginEnd="16dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/calendarViewDeadlinePicker" />
+            app:layout_constraintBottom_toBottomOf="@+id/projectTitleTextInput"
+            app:layout_constraintEnd_toStartOf="@+id/editingDone"
+            app:layout_constraintTop_toTopOf="@+id/projectTitleTextInput" />
 
         <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/textInputLayoutProjectTitle"
+            android:id="@+id/projectTitleTextInput"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:layout_marginTop="8dp"
             android:layout_marginEnd="8dp"
-            app:layout_constraintEnd_toStartOf="@+id/buttonCancelEditing"
+            app:layout_constraintEnd_toStartOf="@+id/cancelEditing"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
             <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/editTextProjectCreationTitle"
+                android:id="@+id/projectTitleEditText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/hint_project_title" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/textInputLayoutProjectDescription"
+            android:id="@+id/projectDescriptionTextInput"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -90,13 +78,13 @@
             android:layout_marginEnd="16dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/textInputLayoutProjectTitle">
+            app:layout_constraintTop_toBottomOf="@+id/projectTitleTextInput">
 
             <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/editTextProjectDescription"
+                android:id="@+id/projectDescriptionEditText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="@string/hint_description" />
+                android:hint="@string/hint_description" />0
         </com.google.android.material.textfield.TextInputLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 

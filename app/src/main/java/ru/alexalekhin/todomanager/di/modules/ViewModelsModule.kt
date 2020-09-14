@@ -5,9 +5,9 @@ import androidx.lifecycle.ViewModelProvider
 import dagger.Binds
 import dagger.Module
 import dagger.multibindings.IntoMap
-import ru.alexalekhin.todomanager.domain.viewModels.InboxViewModel
-import ru.alexalekhin.todomanager.domain.viewModels.MainViewModel
-import ru.alexalekhin.todomanager.domain.viewModels.ProjectViewModel
+import ru.alexalekhin.todomanager.presentation.inbox.InboxViewModel
+import ru.alexalekhin.todomanager.presentation.head.HeadViewModel
+import ru.alexalekhin.todomanager.presentation.project.ProjectViewModel
 import ru.alexalekhin.todomanager.di.ViewModelFactory
 import ru.alexalekhin.todomanager.di.misc.ViewModelKey
 
@@ -25,8 +25,8 @@ abstract class ViewModelsModule {
 
     @Binds
     @IntoMap
-    @ViewModelKey(MainViewModel::class)
-    internal abstract fun provideMainScreenViewModel(viewModel: MainViewModel): ViewModel
+    @ViewModelKey(HeadViewModel::class)
+    internal abstract fun provideMainScreenViewModel(viewModel: HeadViewModel): ViewModel
 
     @Binds
     internal abstract fun bindViewModelFactory(factory: ViewModelFactory): ViewModelProvider.Factory

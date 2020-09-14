@@ -1,4 +1,4 @@
-package ru.alexalekhin.todomanager.presentation.adapters
+package ru.alexalekhin.todomanager.presentation.head
 
 import android.view.LayoutInflater
 import android.view.View
@@ -14,11 +14,11 @@ import ru.alexalekhin.todomanager.presentation.misc.CustomDiffUtilsCallback
 import ru.alexalekhin.todomanager.presentation.misc.ItemTouchHelperAdapter
 import java.util.*
 
-class MainScreenProjectsAdapter(
+class HeadProjectsAdapter(
     private val onProjectClick: (position: Int) -> Unit,
     private val onItemsReorder: (fromPos: Int, toPos: Int) -> Unit,
     private val onDismiss: (position: Int) -> Unit
-) : RecyclerView.Adapter<MainScreenProjectsAdapter.MainScreenProjectViewHolder>(),
+) : RecyclerView.Adapter<HeadProjectsAdapter.MainScreenProjectViewHolder>(),
     ItemTouchHelperAdapter {
 
     var projects: List<DBProject> = emptyList()
@@ -42,7 +42,8 @@ class MainScreenProjectsAdapter(
         val folder = projects[position]
         with(holder) {
             title.text = folder.title
-            image.setImageDrawable(holder.itemView.context.getDrawable(R.drawable.ic_schedule_white_24dp))
+            // TODO: check for deadline and show corresponding icon
+            // image.setImageDrawable(holder.itemView.context.getDrawable(R.drawable.ic_schedule_white_24dp))
         }
     }
 
@@ -73,18 +74,12 @@ class MainScreenProjectsAdapter(
         onDismiss(position)
     }
 
-    interface OnItemInteractionListener {
-        fun onProjectClick(position: Int)
-        fun onItemsReorder(fromPos: Int, toPos: Int)
-        fun onDismiss(position: Int)
-    }
-
-
     class MainScreenProjectViewHolder(
         itemView: View,
         private val onProjectClick: (position: Int) -> Unit
     ) : RecyclerView.ViewHolder(itemView), View.OnClickListener {
-        val title: TextView = itemView.textViewProjectTitle
+
+        val title: TextView = itemView.projectTitle
         val image: ImageView = itemView.imageViewProjectProgress
 
         init {
