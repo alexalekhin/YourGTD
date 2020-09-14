@@ -12,7 +12,6 @@ fun View.showKeyboard() {
         }
     }
 
-    block()
     post {
         block()
     }
@@ -25,7 +24,6 @@ fun View.hideKeyboard() {
         imm.hideSoftInputFromWindow(windowToken, 0)
     }
 
-    block()
     post {
         block()
     }
